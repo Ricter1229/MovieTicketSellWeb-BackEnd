@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import tw.com.ispan.domain.MemberBean;
 
-public interface MemberRepository extends JpaRepository<MemberBean, String>{
+public interface MemberRepository extends JpaRepository<MemberBean, Integer>{
     boolean existsByAccountOrEmail(String account, String email);
 
     Optional<MemberBean> findByEmail(String email);
+
+    Optional<MemberBean> findByAccount(String account);
 }

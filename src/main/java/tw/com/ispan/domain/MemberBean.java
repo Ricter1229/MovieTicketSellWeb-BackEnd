@@ -2,6 +2,8 @@ package tw.com.ispan.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -9,15 +11,18 @@ import jakarta.persistence.Table;
 @Table(name = "Member")
 public class MemberBean {
 	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+
 	@Column(name = "account")
 	private String account;
 
 	@Override
 	public String toString() {
-		return "MemeberBean [account=" + account + ", password=" + password + ", email=" + email
+		return "MemberBean [id=" + id + ", account=" + account + ", password=" + password + ", email=" + email
 				+ ", phoneNo=" + phoneNo + ", birthDate=" + birthDate + "]";
 	}
-
 
 	@Column(name = "password")
 	private String password;
@@ -60,6 +65,12 @@ public class MemberBean {
 	}
 	public void setBirthDate(java.util.Date birthDate) {
 		this.birthDate = birthDate;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 }

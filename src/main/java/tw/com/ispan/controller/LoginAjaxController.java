@@ -59,7 +59,10 @@ public class LoginAjaxController {
         JSONObject responseJson = new JSONObject()
                 .put("success", true)
                 .put("message", "驗證碼已寄出，請檢查您的信箱")
-                .put("user", bean.getEmail())
+                .put("account", bean.getAccount())
+                .put("email", bean.getEmail())
+                .put("phone", bean.getPhoneNo())
+                .put("birthDate", bean.getBirthDate())
                 .put("token", token)
                 .put("validationCode", validationCode);
         return responseJson.toString();
