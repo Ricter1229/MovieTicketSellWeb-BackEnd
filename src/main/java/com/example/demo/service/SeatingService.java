@@ -1,13 +1,21 @@
 package com.example.demo.service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.api.InsertSeatingListRequestDto;
+import com.example.demo.exception.CustomException;
+import com.example.demo.model.AuditoriumBean;
 import com.example.demo.repository.AuditoriumRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
 
@@ -17,17 +25,34 @@ public class SeatingService {
 	@Autowired
 	private AuditoriumRepository auditoriumRepository;
 	
-	public Map<String, List<Map<String, Object>>> insertSeatingList() {
-		Map<String, int[]> sections = new LinkedHashMap<>();
-		//行含走道
-        sections.put("seats", new int[]{10, 11}); // 單區域，3 行，每行 8 列
-        // 設定走道位置（從 1 開始）
-        List<Integer> walkwayPositions = List.of(3, 6, 9);
-
-        // 生成座位表
-        InsertSeating seatingList = new InsertSeating();
-        Map<String, List<Map<String, Object>>> seatingLayout = seatingList.generateSeatingLayout(sections, walkwayPositions);
+	public Map<String, List<Map<String, Object>>> insertSeatingList(Integer auditoriumId ,InsertSeatingListRequestDto request) {
+		AuditoriumBean auditorium = auditoriumRepository.findById(auditoriumId)
+				.orElseThrow(() -> new CustomException("Auditorium not found", 404));
+		
+        Map<String, List<Map<String, Object>>> seatingLayout = InsertSeating.generateSeatingLayout("seats", request);
+        
+        String seatingList = JSONObject.wrap(seatingLayout).toString();
+        auditorium.setSeatingList(seatingList);
+        auditoriumRepository.save(auditorium);
         
         return seatingLayout;
+	}
+	
+	public Map<String, Object> findSeatingList(Integer auditoriumId) {
+		AuditoriumBean auditorium = auditoriumRepository.findById(auditoriumId)
+				.orElseThrow(() -> new CustomException("Auditorium not found", 404));
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> map = null;
+		try {
+			map = objectMapper.readValue(auditorium.getSeatingList(), Map.class);
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return map;
 	}
 }

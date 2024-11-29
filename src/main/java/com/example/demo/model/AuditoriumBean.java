@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -46,7 +48,7 @@ public class AuditoriumBean {
 	private String name;
 	
 	@Column(name="seatingList")
-	private byte[] seatingList;
+	private String seatingList;
 	
 	@JsonManagedReference("auditoriumBean")
 	@OneToMany(mappedBy = "auditoriumBean", cascade = CascadeType.ALL)

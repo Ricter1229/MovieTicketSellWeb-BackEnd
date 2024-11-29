@@ -104,7 +104,7 @@ public class MemberBuyTicketOrderService {
         // redis 設定倒計時
         // 綁定訂單到 Redis，設置 15 分鐘過期時間
         String redisKey = "order-expire:" + newOrder.getId();
-        redisTemplate.opsForValue().set(redisKey, "PENDING", 15, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, "PENDING", 2, TimeUnit.MINUTES);
         
         return newOrder;
     }
