@@ -7,8 +7,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.domain.SeatingListBean;
 import com.example.demo.exception.CustomException;
-import com.example.demo.model.SeatingListBean;
 import com.example.demo.repository.MemberBuyTicketOrderRepository;
 import com.example.demo.repository.SeatingListRepository;
 

@@ -6,12 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.domain.AuditoriumScheduleBean;
+import com.example.demo.domain.MemberBuyTicketDetailBean;
+import com.example.demo.domain.MemberBuyTicketOrderBean;
+import com.example.demo.domain.StoreBean;
 import com.example.demo.dto.api.MemberBuyTicketDetailRequestDto;
 import com.example.demo.exception.CustomException;
-import com.example.demo.model.AuditoriumScheduleBean;
-import com.example.demo.model.MemberBuyTicketDetailBean;
-import com.example.demo.model.MemberBuyTicketOrderBean;
-import com.example.demo.model.StoreBean;
 import com.example.demo.repository.AuditoriumScheduleRepository;
 import com.example.demo.repository.MemberBuyTicketDetailRepository;
 import com.example.demo.repository.MemberBuyTicketOrderRepository;

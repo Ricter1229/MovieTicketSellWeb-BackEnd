@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.domain.MemberBean;
+import com.example.demo.domain.MemberBuyTicketDetailBean;
+import com.example.demo.domain.MemberBuyTicketOrderBean;
+import com.example.demo.domain.MovieBean;
 import com.example.demo.dto.api.MemberBuyTicketDetailRequestDto;
 import com.example.demo.exception.CustomException;
-import com.example.demo.model.MemberBean;
-import com.example.demo.model.MemberBuyTicketDetailBean;
-import com.example.demo.model.MemberBuyTicketOrderBean;
-import com.example.demo.model.MovieBean;
 import com.example.demo.repository.MemberBuyTicketOrderRepository;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.repository.MovieRepository;

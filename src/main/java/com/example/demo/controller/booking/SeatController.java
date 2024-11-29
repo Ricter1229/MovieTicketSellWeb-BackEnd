@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
+import com.example.demo.domain.SeatingListBean;
 import com.example.demo.dto.api.SeatRequestDto;
 import com.example.demo.exception.CustomException;
-import com.example.demo.model.SeatingListBean;
 import com.example.demo.service.booking.SeatingListService;
 
 @RestController

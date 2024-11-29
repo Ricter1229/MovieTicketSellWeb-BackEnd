@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
-import com.example.demo.model.TicketTypeBean;
+import com.example.demo.domain.TicketTypeBean;
 import com.example.demo.service.booking.TicketTypeService;
 
 @RestController

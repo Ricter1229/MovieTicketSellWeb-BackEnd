@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.demo.model.SeatingListBean;
+import com.example.demo.domain.SeatingListBean;
 
 import jakarta.persistence.LockModeType;
 

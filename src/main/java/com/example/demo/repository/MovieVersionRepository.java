@@ -2,7 +2,7 @@ package com.example.demo.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.demo.model.MovieVersionBean;
+import com.example.demo.domain.MovieVersionBean;
 
 public interface MovieVersionRepository extends JpaRepository<MovieVersionBean, Integer> {
 

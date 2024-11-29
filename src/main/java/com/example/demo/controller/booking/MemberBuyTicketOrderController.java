@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
+import com.example.demo.domain.MemberBuyTicketOrderBean;
 import com.example.demo.dto.api.MemberBuyTicketOrderRequestDto;
-import com.example.demo.model.MemberBuyTicketOrderBean;
 import com.example.demo.service.booking.MemberBuyTicketOrderService;
 
 @RestController

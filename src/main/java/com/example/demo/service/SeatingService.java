@@ -8,9 +8,9 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.domain.AuditoriumBean;
 import com.example.demo.dto.api.InsertSeatingListRequestDto;
 import com.example.demo.exception.CustomException;
-import com.example.demo.model.AuditoriumBean;
 import com.example.demo.repository.AuditoriumRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;

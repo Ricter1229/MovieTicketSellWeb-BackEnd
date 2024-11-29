@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.domain.TicketTypeBean;
 import com.example.demo.exception.CustomException;
-import com.example.demo.model.TicketTypeBean;
 import com.example.demo.repository.TicketTypeRepository;
 
 import jakarta.transaction.Transactional;

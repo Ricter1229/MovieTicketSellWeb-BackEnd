@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
-import com.example.demo.model.MovieBean;
+import com.example.demo.domain.MovieBean;
 import com.example.demo.repository.AuditoriumRepository;
 import com.example.demo.repository.AuditoriumScheduleRepository;
 import com.example.demo.repository.MemberBuyTicketDetailRepository;
