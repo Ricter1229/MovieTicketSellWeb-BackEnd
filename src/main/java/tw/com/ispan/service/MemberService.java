@@ -15,16 +15,20 @@ public class MemberService {
 	@Autowired
 	private MemberRepository memberRepository;
 
-	public String register(MemberBean newMember) {
+	public String registerTemp(MemberBean newMember) {
         // 帳號是否存在
         boolean exists = memberRepository.existsByAccountOrEmail(newMember.getAccount(), newMember.getEmail());
         if (exists) {
             return "用戶已存在";
         }
 
+        return "Registration successful!";
+    }
+
+    public String register(MemberBean newMember) {
         // 加入新帳號
         memberRepository.save(newMember);
-        return "Registration successful!";
+        return "註冊成功!";
     }
 
 	public MemberBean login(String account, String password) {

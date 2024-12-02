@@ -30,10 +30,10 @@ public class MemberBean {
 	@Column(name = "email")
 	private String email;
 
-	@Column(name = "phoneNo")
+	@Column(name = "phone_no")
 	private String phoneNo;
 
-	@Column(name = "birthDate")
+	@Column(name = "birth_date")
 	private java.util.Date birthDate;
 	
 	public String getAccount() {
