@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.MovieBean;
+import com.example.demo.dto.FindMovieResponseDTO;
+import com.example.demo.dto.PhotoTypeDto;
 import com.example.demo.repository.MovieRepository;
 import com.example.demo.util.DatetimeConverter;
+import com.example.demo.util.PhotoTurn;
 
 @Service
 @Transactional
@@ -31,21 +35,47 @@ public class MovieService {
 		return 0;
 	}
 	
-	public List<MovieBean> find(String json) {
+	public List<FindMovieResponseDTO> find(String json) {
 		try {
 			JSONObject obj = new JSONObject(json);
-			return movieRepo.find(obj);
+			List<MovieBean> movies = movieRepo.find(obj);
+			
+			List<FindMovieResponseDTO> list = new ArrayList<>();
+			for(MovieBean movie : movies) {
+				FindMovieResponseDTO resp = new FindMovieResponseDTO();
+				resp.setMovie(movie);
+				Base64.Encoder encoder = Base64.getEncoder();
+				if(movie.getPhoto()!=null) {
+		            String mainPhoto = encoder.encodeToString(movie.getPhoto());
+		            String mimeType=movie.getMimeType();
+		            mainPhoto=mimeType+mainPhoto;
+		            resp.setMainPhoto(mainPhoto);
+		        }
+				list.add(resp);
+			}
+			 return list;
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
-	public MovieBean findById(Integer id) {
+	public FindMovieResponseDTO findById(Integer id) {
 		if(id!=null) {
 			Optional<MovieBean> optional = movieRepo.findById(id);
 			if(optional.isPresent()) {
-				return optional.get();
+				MovieBean movie = optional.get();
+				  
+				FindMovieResponseDTO resp = new FindMovieResponseDTO();
+				resp.setMovie(movie);
+				Base64.Encoder encoder = Base64.getEncoder();
+				if(movie.getPhoto()!=null) {
+		            String mainPhoto = encoder.encodeToString(movie.getPhoto());
+		            String mimeType=movie.getMimeType();
+		            mainPhoto=mimeType+mainPhoto;
+		            resp.setMainPhoto(mainPhoto);
+		        }
+				return resp;
 			}
 		}
 		return null;
@@ -73,23 +103,30 @@ public class MovieService {
 			String rating = obj.isNull("rating") ? null : obj.getString("rating");
 			String runTime = obj.isNull("runTime") ? null : obj.getString("runTime");
 			String commercialFilmURL = obj.isNull("commercialFilmURL") ? null : obj.getString("commercialFilmURL");
+			System.out.print(obj.getString("photo"));
+			String mainPhotoStr=obj.isNull("photo")? null:obj.getString("photo");
 			
-					
-			MovieBean insert = new MovieBean();
-			insert.setChineseName(chineseName);
-			insert.setEnglishName(englishName);
-			insert.setCast(cast);
-			insert.setReleasedDate(DatetimeConverter.parse(releasedDate, "yyyy-MM-dd"));
-			insert.setOutOfDate(DatetimeConverter.parse(outOfDate, "yyyy-MM-dd"));
-			insert.setIntro(intro);
-			insert.setPrice(price);
-			insert.setTicketCount(ticketCount);
-			insert.setStyle(style);
-			insert.setRating(rating);
-			insert.setRunTime(runTime);
-			insert.setCommercialFilmURL(commercialFilmURL);
-			insert.setPhoto(null);
-			return movieRepo.save(insert);
+			PhotoTypeDto mainPhotoDto = PhotoTurn.base64ToByte(mainPhotoStr);
+			
+			if(mainPhotoDto!=null) {
+				MovieBean insert = new MovieBean();                      
+				insert.setPhoto(mainPhotoDto.getPhoto());				                          
+				insert.setMimeType(mainPhotoDto.getMimeType());
+				insert.setChineseName(chineseName);
+				insert.setEnglishName(englishName);
+				insert.setCast(cast);
+				insert.setReleasedDate(DatetimeConverter.parse(releasedDate, "yyyy-MM-dd"));
+				insert.setOutOfDate(DatetimeConverter.parse(outOfDate, "yyyy-MM-dd"));
+				insert.setIntro(intro);
+				insert.setPrice(price);
+				insert.setTicketCount(ticketCount);
+				insert.setStyle(style);
+				insert.setRating(rating);
+				insert.setRunTime(runTime);
+				insert.setCommercialFilmURL(commercialFilmURL);
+				return movieRepo.save(insert);
+				                      }
+			
 				
 			
 			
@@ -115,6 +152,9 @@ public class MovieService {
 			String rating = obj.isNull("rating") ? null : obj.getString("rating");
 			String runTime = obj.isNull("runTime") ? null : obj.getString("runTime");
 			String commercialFilmURL = obj.isNull("commercialFilmURL") ? null : obj.getString("commercialFilmURL");
+			String mainPhotoStr=obj.isNull("photo")? null:obj.getString("photo");
+			
+			PhotoTypeDto mainPhotoDto = PhotoTurn.base64ToByte(mainPhotoStr);
 			
 			
 			
@@ -134,7 +174,8 @@ public class MovieService {
 					update.setRating(rating);
 					update.setRunTime(runTime);
 					update.setCommercialFilmURL(commercialFilmURL);
-					update.setPhoto(null);
+					update.setPhoto(mainPhotoDto.getPhoto());				                          
+					update.setMimeType(mainPhotoDto.getMimeType());
 					return movieRepo.save(update);
 				}
 			}
