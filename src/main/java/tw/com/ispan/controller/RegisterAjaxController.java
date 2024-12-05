@@ -28,38 +28,29 @@ public class RegisterAjaxController {
     @Autowired
     private EmailService emailService;
 
-    // @PostMapping("/register")
-    // public ResponseEntity<Map<String, Object>> register(@RequestBody MemberBean
-    // newMember) {
-    // Map<String, Object> response = new HashMap<>();
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> register(@RequestBody MemberBean newMember) {
+        Map<String, Object> response = new HashMap<>();
 
-    // // 驗證碼生成
-    // String validationCode = String.format("%04d", new
-    // java.util.Random().nextInt(9999));
-
-    // try {
-    // // 呼叫 service
-    // String resultMessage = memberService.register(newMember);
-
-    // if ("Registration successful!".equals(resultMessage)) {
-    // emailService.sendValidationCode(newMember.getEmail(), validationCode);
-
-    // response.put("success", true);
-    // response.put("message", "註冊成功，寄送驗證碼到您的信箱");
-    // response.put("validationCode", validationCode);
-    // return ResponseEntity.ok(response);
-    // } else {
-    // response.put("success", false);
-    // response.put("message", resultMessage);
-    // return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-    // }
-    // } catch (Exception e) {
-    // response.put("success", false);
-    // response.put("message", "An error occurred: " + e.getMessage());
-    // return
-    // ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    // }
-    // }
+        try {
+            // 呼叫 service
+            String resultMessage = memberService.registerTemp(newMember);
+            System.out.println(resultMessage);
+            if ("Registration successful!".equals(resultMessage)) {
+                response.put("success", true);
+                response.put("message", "註冊成功");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", resultMessage);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "An error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
     @PostMapping("/register-temp")
     public String registerTemp(@RequestBody MemberBean newMember) {
@@ -77,7 +68,7 @@ public class RegisterAjaxController {
         JSONObject responseJson = new JSONObject()
                 .put("success", true)
                 .put("validationCode", validationCode);
-        System.out.println(responseJson.toString());      
+        System.out.println(responseJson.toString());
         return responseJson.toString();
     }
 

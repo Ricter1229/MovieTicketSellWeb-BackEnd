@@ -70,7 +70,7 @@ public class LoginAjaxController {
         }
 
         // Retrieve the email based on the username
-        MemberBean member = memberService.findByUsername(username);
+        MemberBean member = memberService.findByAccount(username);
         if (member == null) {
             return new JSONObject()
                     .put("success", false)

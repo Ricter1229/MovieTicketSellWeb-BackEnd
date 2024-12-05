@@ -1,7 +1,10 @@
 package tw.com.ispan.service;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +51,30 @@ public class MemberService {
 
 		return null;
 	}
+    
+    public long count(String json) {
+		try {
+			JSONObject obj = new JSONObject(json);
+            return memberRepository.count(obj);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 
-    public MemberBean findByUsername(String username) {
-        Optional<MemberBean> memberOptional = memberRepository.findByAccount(username);
+    public List<MemberBean> find(String json) {
+        try {
+            JSONObject obj = new JSONObject(json);
+            return memberRepository.find(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public MemberBean findByAccount(String account) {
+        Optional<MemberBean> memberOptional = memberRepository.findByAccount(account);
         return memberOptional.orElse(null);
     }
     
