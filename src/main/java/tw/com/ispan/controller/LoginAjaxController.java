@@ -48,6 +48,7 @@ public class LoginAjaxController {
         JSONObject responseJson = new JSONObject()
                 .put("success", true)
                 .put("message", "登入成功")
+                .put("id", bean.getId())
                 .put("account", bean.getAccount())
                 .put("email", bean.getEmail())
                 .put("phone", bean.getPhoneNo())

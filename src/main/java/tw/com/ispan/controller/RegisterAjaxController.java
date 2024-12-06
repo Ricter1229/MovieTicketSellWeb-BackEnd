@@ -34,11 +34,12 @@ public class RegisterAjaxController {
 
         try {
             // 呼叫 service
-            String resultMessage = memberService.registerTemp(newMember);
-            System.out.println(resultMessage);
+            String resultMessage = memberService.register(newMember);
+
             if ("Registration successful!".equals(resultMessage)) {
                 response.put("success", true);
                 response.put("message", "註冊成功");
+                System.out.println(response);
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
