@@ -13,45 +13,40 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.api.common.ApiResponse;
 import com.example.demo.dto.api.AuditoriumRequestDto;
 import com.example.demo.dto.api.InsertSeatingListRequestDto;
+import com.example.demo.service.AuditoriumService;
 import com.example.demo.service.SeatingService;
-import com.example.demo.service.auditorium.AuditoriumService;
 
-@RequestMapping("/auditorium")
-@CrossOrigin
 @RestController
+@CrossOrigin
+@RequestMapping("/api/Auditorium")
 public class AuditoriumController {
 	@Autowired
-	private AuditoriumService audService;
-	@Autowired
 	private SeatingService seatingService;
-	
-//	傳一個string進來回傳原本的json
-	@PostMapping("/insert/{id}")
-	public String auditoriumInsert(@PathVariable Integer id,@RequestBody String jsonString) {
-		JSONObject json=null;
-		try {
-			json = new JSONObject(jsonString);
-			audService.updateAuditorium(id,json);
-			
-		} catch (JSONException e) {
-			
-			e.printStackTrace();
-		}
-		return json.toString();
-		
-	}
-	
-	
-	
-
+	@Autowired
+	private AuditoriumService audService;
 
 	@PostMapping("/insertSeatingList")
 	public ApiResponse<Object> createSeatingList(@RequestBody InsertSeatingListRequestDto request) {
-		return ApiResponse.success(seatingService.insertSeatingList(1,request));
+		return ApiResponse.success(seatingService.insertSeatingList(1, request));
 	}
-	
+
 	@PostMapping("/getSeatingList")
 	public ApiResponse<Object> getSeatingList(@RequestBody AuditoriumRequestDto request) {
 		return ApiResponse.success(seatingService.findSeatingList(request.getAuditoriumId()));
+	}
+
+	@PostMapping("/insert/{id}")
+	public String auditoriumInsert(@PathVariable Integer id, @RequestBody String jsonString) {
+		JSONObject json = null;
+		try {
+			json = new JSONObject(jsonString);
+			audService.updateAuditorium(id, json);
+
+		} catch (JSONException e) {
+
+			e.printStackTrace();
+		}
+		return json.toString();
+
 	}
 }

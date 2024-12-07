@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,4 @@ public interface SeatingListRepository extends JpaRepository<SeatingListBean, In
 	Boolean isSeatLock(@Param("scheduleId") Integer scheduleId, @Param("seat") String seat);
 
 	Optional<SeatingListBean> findByAuditoriumScheduleIdAndSeat(Integer scheduleId, String seat);
-
-
 }

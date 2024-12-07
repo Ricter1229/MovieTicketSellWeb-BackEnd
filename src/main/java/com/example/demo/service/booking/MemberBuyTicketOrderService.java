@@ -100,7 +100,6 @@ public class MemberBuyTicketOrderService {
 //                throw new CustomException("Failed to mark seat " + seat + " as sold.", 400);
 //            }
 //    	}
-        
 
         // redis 設定倒計時
         // 綁定訂單到 Redis，設置 15 分鐘過期時間
@@ -109,7 +108,6 @@ public class MemberBuyTicketOrderService {
         
      // 在哈希表中保存键值对
         redisTemplate.opsForHash().put("order-details", redisKey, "PENDING");
-
         
         return newOrder;
     }

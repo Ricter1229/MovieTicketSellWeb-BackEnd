@@ -54,11 +54,7 @@ public class MemberBuyTicketOrderController {
 	@PutMapping("/status")
 	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
 		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
-    	System.out.println("我要return "+ orderId);
-        ApiResponse<Object> response = ApiResponse.success(orderId);
-        System.out.println("Response: " + response.toString());
-
-		return response;
+		return ApiResponse.success(orderId);
 	}	
 	
 	@DeleteMapping("/")

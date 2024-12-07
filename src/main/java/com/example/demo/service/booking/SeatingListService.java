@@ -31,6 +31,7 @@ public class SeatingListService {
 	private SeatingService seatingService;
 	@Autowired
 	private AuditoriumScheduleRepository auditoriumScheduleRepository;
+
 	/**
      * 鎖定座位
      * @param scheduleId 場次 ID

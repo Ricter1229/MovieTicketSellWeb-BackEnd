@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.MovieBean;
 import com.example.demo.dto.FindMovieResponseDTO;
-import com.example.demo.dto.PhotoTypeDto;
+import com.example.demo.dto.api.PhotoTypeDto;
 import com.example.demo.repository.MovieRepository;
 import com.example.demo.util.DatetimeConverter;
 import com.example.demo.util.PhotoTurn;
@@ -125,11 +125,7 @@ public class MovieService {
 				insert.setRunTime(runTime);
 				insert.setCommercialFilmURL(commercialFilmURL);
 				return movieRepo.save(insert);
-				                      }
-			
-				
-			
-			
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -176,6 +172,7 @@ public class MovieService {
 					update.setCommercialFilmURL(commercialFilmURL);
 					update.setPhoto(mainPhotoDto.getPhoto());				                          
 					update.setMimeType(mainPhotoDto.getMimeType());
+					
 					return movieRepo.save(update);
 				}
 			}

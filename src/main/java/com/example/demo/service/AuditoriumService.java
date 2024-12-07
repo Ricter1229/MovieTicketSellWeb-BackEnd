@@ -1,4 +1,4 @@
-package com.example.demo.service.auditorium;
+package com.example.demo.service;
 
 import java.util.Optional;
 
@@ -11,6 +11,8 @@ import com.example.demo.domain.StoreBean;
 import com.example.demo.repository.AuditoriumRepository;
 import com.example.demo.repository.StoreRepository;
 import com.example.demo.util.JsonToSomething;
+
+
 
 @Service
 public class AuditoriumService {

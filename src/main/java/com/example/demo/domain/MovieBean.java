@@ -10,7 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "Movie")
 public class MovieBean {
@@ -72,141 +76,5 @@ public class MovieBean {
 				+ runTime + ", commercialFilmURL=" + commercialFilmURL + ", photo=" + Arrays.toString(photo)
 				+ ", mimeType=" + mimeType + "]";
 	}
-	
-	
-//	@Override
-//	public String toString() {
-//		return "MovieBean [id=" + id + ", chineseName=" + chineseName + ", englishName=" + englishName + ", cast="
-//				+ cast + ", releasedDate=" + releasedDate + ", outOfDate=" + outOfDate + ", intro=" + intro + ", price="
-//				+ price + ", ticketCount=" + ticketCount + ", style=" + style + ", rating=" + rating + ", runTime="
-//				+ runTime + ", commercialFilmURL=" + commercialFilmURL + ", photo=" + photo + "]";
-//	}
-
-	public String getMimeType() {
-		return mimeType;
-	}
-
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public String getChineseName() {
-		return chineseName;
-	}
-
-	public void setChineseName(String chineseName) {
-		this.chineseName = chineseName;
-	}
-
-	public String getEnglishName() {
-		return englishName;
-	}
-
-	public void setEnglishName(String englishName) {
-		this.englishName = englishName;
-	}
-
-	public String getCast() {
-		return cast;
-	}
-
-	public void setCast(String cast) {
-		this.cast = cast;
-	}
-
-	public java.util.Date getReleasedDate() {
-		return releasedDate;
-	}
-
-	public void setReleasedDate(java.util.Date releasedDate) {
-		this.releasedDate = releasedDate;
-	}
-
-	public java.util.Date getOutOfDate() {
-		return outOfDate;
-	}
-
-	public void setOutOfDate(java.util.Date outOfDate) {
-		this.outOfDate = outOfDate;
-	}
-
-	public String getIntro() {
-		return intro;
-	}
-
-	public void setIntro(String intro) {
-		this.intro = intro;
-	}
-
-	public Double getPrice() {
-		return price;
-	}
-
-	public void setPrice(Double price) {
-		this.price = price;
-	}
-
-	public Integer getTicketCount() {
-		return ticketCount;
-	}
-
-	public void setTicketCount(Integer ticketCount) {
-		this.ticketCount = ticketCount;
-	}
-
-	public String getStyle() {
-		return style;
-	}
-
-	public void setStyle(String style) {
-		this.style = style;
-	}
-
-	public String getRating() {
-		return rating;
-	}
-
-	public void setRating(String rating) {
-		this.rating = rating;
-	}
-
-	public String getRunTime() {
-		return runTime;
-	}
-
-	public void setRunTime(String runTime) {
-		this.runTime = runTime;
-	}
-
-	public String getCommercialFilmURL() {
-		return commercialFilmURL;
-	}
-
-	public void setCommercialFilmURL(String commercialFilmURL) {
-		this.commercialFilmURL = commercialFilmURL;
-	}
-
-	public byte[] getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
-	}
-	
-	
-	
-	
-	
 
 }
