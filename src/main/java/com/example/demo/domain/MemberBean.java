@@ -1,63 +1,65 @@
-package com.example.demo.domain;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+package tw.com.ispan.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
-
-@Getter
-@Setter
 @Entity
-@Table(name="Member")
+@Table(name = "Member")
 public class MemberBean {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="id")
-	private Integer id;
-	
-	@Column(name="account")
+	@Column(name = "account")
 	private String account;
-	
-	@Column(name="password")
-	private String password;
-	
-	@Column(name="email")
-	private String email;
-	
-	@Column(name="phoneNo")
-	private String phoneNo;
-	
-	@Column(name="birthDate")
-	private Date birthDate;
-
-	@PrePersist
-	public void init() {
-		if (birthDate == null) {
-			birthDate = new Date();
-		}
-	}
-	
-	@JsonManagedReference("member")
-	@OneToMany(mappedBy = "member")
-	private List<MemberBuyTicketOrderBean> memberBuyTicketOrders = new ArrayList<>();
 
 	@Override
 	public String toString() {
-		return "MemberBean [id=" + id + ", account=" + account + ", password=" + password + ", email=" + email
+		return "MemeberBean [account=" + account + ", password=" + password + ", email=" + email
 				+ ", phoneNo=" + phoneNo + ", birthDate=" + birthDate + "]";
 	}
+
+
+	@Column(name = "password")
+	private String password;
+
+	@Column(name = "email")
+	private String email;
+
+	@Column(name = "phoneNo")
+	private String phoneNo;
+
+	@Column(name = "birthDate")
+	private java.util.Date birthDate;
+	
+	public String getAccount() {
+		return account;
+	}
+	public void setAccount(String account) {
+		this.account = account;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getPhoneNo() {
+		return phoneNo;
+	}
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
+	}
+	public java.util.Date getBirthDate() {
+		return birthDate;
+	}
+	public void setBirthDate(java.util.Date birthDate) {
+		this.birthDate = birthDate;
+	}
+
 }
