@@ -1,4 +1,4 @@
-package tw.com.ispan.controller;
+package com.example.demo.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import tw.com.ispan.domain.MemberBean;
-import tw.com.ispan.service.MemberService;
+import com.example.demo.domain.MemberBean;
+import com.example.demo.service.MemberService;
 
 @RestController
 @RequestMapping("/ajax/secure")

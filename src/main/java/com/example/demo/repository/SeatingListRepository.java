@@ -1,6 +1,5 @@
 package com.example.demo.repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,12 +17,16 @@ public interface SeatingListRepository extends JpaRepository<SeatingListBean, In
 	@Query("FROM SeatingListBean WHERE auditoriumScheduleId = :scheduleId AND seat = :seat")
 	Optional<SeatingListBean> findSeatForUpdate(@Param("scheduleId") Integer scheduleId, @Param("seat") String seat);
 
-	@Query("FROM SeatingListBean WHERE auditoriumScheduleId = :scheduleId AND isSold = :isSold")
-	List<SeatingListBean> findByAuditoriumScheduleIdSoldSeat(@Param("scheduleId") Integer scheduleId, @Param("isSold") Integer isSold);
+	@Query("SELECT seat FROM SeatingListBean WHERE auditoriumScheduleId = :scheduleId AND isSold = :isSold")
+	List<String> findByAuditoriumScheduleIdSoldSeat(@Param("scheduleId") Integer scheduleId, @Param("isSold") Integer isSold);
+	
+	@Query("SELECT seat FROM SeatingListBean WHERE auditoriumScheduleId = :scheduleId AND isLocked = :isLocked And isSold = :isSold")
+	List<String> findByAuditoriumScheduleIdAndIsLocked(@Param("scheduleId")Integer scheduleId, @Param("isLocked")Integer isLocked, @Param("isSold") Integer isSold);
 	
 	@Query("FROM SeatingListBean WHERE auditoriumScheduleId = :scheduleId AND seat = :seat")
 	Boolean isSeatLock(@Param("scheduleId") Integer scheduleId, @Param("seat") String seat);
 
 	Optional<SeatingListBean> findByAuditoriumScheduleIdAndSeat(Integer scheduleId, String seat);
+
 
 }

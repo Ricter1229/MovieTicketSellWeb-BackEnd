@@ -3,14 +3,17 @@ package com.example.demo.service.booking;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.SeatingListBean;
 import com.example.demo.exception.CustomException;
+import com.example.demo.repository.AuditoriumScheduleRepository;
 import com.example.demo.repository.MemberBuyTicketOrderRepository;
 import com.example.demo.repository.SeatingListRepository;
+import com.example.demo.service.SeatingService;
 
 import jakarta.transaction.Transactional;
 
@@ -24,7 +27,10 @@ public class SeatingListService {
 	private SeatingListRepository seatingListRepository;
 	@Autowired
 	private MemberBuyTicketOrderRepository memberBuyTicketOrderRepository;
-	
+	@Autowired
+	private SeatingService seatingService;
+	@Autowired
+	private AuditoriumScheduleRepository auditoriumScheduleRepository;
 	/**
      * 鎖定座位
      * @param scheduleId 場次 ID
@@ -42,6 +48,7 @@ public class SeatingListService {
 			}
 		} catch (Exception e) {
 			System.err.println("Redis connection failed: " + e.getMessage());
+			throw new CustomException("Redis connection failed: " + e.getMessage(), 400);
 		}
         
         // 更新資料庫中的座位狀態
@@ -49,8 +56,7 @@ public class SeatingListService {
                 .orElseThrow(() -> new CustomException("Seat not found", 404));
         if (seatList.getIsLocked() == 1 || seatList.getIsSold()  == 1) {
             redisLockService.releaseLock(lockKey); // 釋放 Redis 鎖
-            return false;
-            //throw new CustomException("Seat is not available", 400);
+            throw new CustomException("Seat is not available", 400);
         }
         
     	seatList.setIsLocked(1);
@@ -86,26 +92,58 @@ public class SeatingListService {
     }
     
     /**
-     * 新增100個座位
+     * 新增座位進 seatingList
      * @param
      * @return
      */
-    public void insertSeat() {
-    	int num = 100;
-    	String startChar = "A";
+    public void insertSeat(Integer auditoriumScheduleId) {    	    	
+    	// 假设 auditoriumId 已传入，seatingListRepository 和 SeatingListBean 已定义。
+    	Map<String, Object> seats = seatingService.findSeatingList(auditoriumScheduleId);
+
+    	// 获取 "seats" 的值并强制转换为 List<Map<String, Object>>
+    	List<Map<String, Object>> seatRows = (List<Map<String, Object>>) seats.get("seats");
+    	
         List<SeatingListBean> seatList = new ArrayList<>();
+    	// 遍历每一行的座位数据
+    	for (Map<String, Object> row : seatRows) {
+    	    String rowLabel = (String) row.get("row"); // 获取行名（如 "A", "B", "walkway"）
+    	    List<Object> seatNumbers = (List<Object>) row.get("seats"); // 获取座位列表
+    	    
+    	    // 如果是 "walkway"，跳过
+    	    if ("walkway".equalsIgnoreCase(rowLabel)) {
+    	        continue;
+    	    }
 
-    	for (int i = 1; i <= num; i++) {
-            SeatingListBean seatingListBean = new SeatingListBean();
-            seatingListBean.setAuditoriumScheduleId(1);
-            seatingListBean.setSeat(startChar + "-" + i);
-            seatingListBean.setLockedByOrderId(null);
-            seatingListBean.setAuditoriumScheduleBean(null);
-            seatingListBean.setSoldByOrderId(null);
-            seatList.add(seatingListBean);
-        }
+    	    // 遍历座位
+    	    for (Object seatNumber : seatNumbers) {
+    	        // 跳过 null 座位
+    	        if (seatNumber == null) {
+    	            continue;
+    	        }
 
-        seatingListRepository.saveAll(seatList);
+    	        if(seatingListRepository.findByAuditoriumScheduleIdAndSeat(auditoriumScheduleId, rowLabel + "-" + seatNumber).isPresent()) {
+    	        	continue;
+    	        }
+    	        					  
+    	        // 创建 SeatingListBean
+    	        SeatingListBean seatingListBean = new SeatingListBean();
+    	        seatingListBean.setAuditoriumScheduleId(auditoriumScheduleId); // 假设使用 auditoriumId
+    	        seatingListBean.setSeat(rowLabel + "-" + seatNumber); // 组合行名和座位号，例如 "A-1"
+    	        seatingListBean.setLockedByOrderId(null);
+    	        
+    	        seatingListBean.setAuditoriumScheduleBean(auditoriumScheduleRepository.findById(auditoriumScheduleId).get());
+    	        
+    	        seatingListBean.setSoldByOrderId(null);
+
+    	        // 添加到列表
+    	        seatList.add(seatingListBean);
+    	    }
+    	}
+
+    	if(seatList != null && seatList.size() != 0) {
+    		seatingListRepository.saveAll(seatList);
+            System.out.println("Seats saved: " + seatList.size());
+    	}
     }
     
     /**
@@ -121,6 +159,7 @@ public class SeatingListService {
     	if(seatList.getIsSold() == 0) {
     		seatList.setIsSold(1);
         	seatList.setSoldByOrderId(orderId);
+        	seatingListRepository.save(seatList);
         	return true;
     	}
     	return false;
@@ -142,13 +181,20 @@ public class SeatingListService {
      * @param
      * @return
      */
-    public List<SeatingListBean> getAllSoldSeatWithScheduleId(Integer scheduleId) {
-    	List<SeatingListBean> seatLists = seatingListRepository.findByAuditoriumScheduleIdSoldSeat(scheduleId, 1);
-        if(seatLists == null || seatLists.size() == 0) {
-        	throw new CustomException("Auditorium Schedule not found", 404);
-        }
+    public List<String> getAllSoldSeatWithScheduleId(Integer scheduleId) {
+    	List<String> seatLists = seatingListRepository.findByAuditoriumScheduleIdSoldSeat(scheduleId, 1);
+        
         return seatLists;
     }
     
-    
+    /**
+     * 查詢某場次的已選取座位
+     * @param
+     * @return
+     */
+    public List<String> getAllLockSeatWithScheduleId(Integer scheduleId) {
+    	List<String> seatLists = seatingListRepository.findByAuditoriumScheduleIdAndIsLocked(scheduleId, 1, 0);
+        
+        return seatLists;
+    }
 }

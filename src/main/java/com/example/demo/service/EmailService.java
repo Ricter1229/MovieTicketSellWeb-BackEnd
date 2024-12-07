@@ -1,4 +1,4 @@
-package tw.com.ispan.service;
+package com.example.demo.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+
 @Getter
 @Setter
 @ToString
@@ -18,5 +19,6 @@ public class MemberBuyTicketOrderRequestDto {
 	private Integer movieId;
 	private BigDecimal totalAmount;
 	private String status;
+	private String action;
 	private MemberBuyTicketDetailRequestDto orderDetail;
 }

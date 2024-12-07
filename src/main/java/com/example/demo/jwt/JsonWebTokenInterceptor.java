@@ -1,4 +1,4 @@
-package tw.com.ispan.jwt;
+package com.example.demo.jwt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

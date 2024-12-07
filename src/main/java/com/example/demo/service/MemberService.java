@@ -1,4 +1,4 @@
-package tw.com.ispan.service;
+package com.example.demo.service;
 
 import java.util.Optional;
 
@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import tw.com.ispan.domain.MemberBean;
-import tw.com.ispan.repository.MemberRepository;
+import com.example.demo.domain.MemberBean;
+import com.example.demo.repository.MemberRepository;
+
+
 
 @Service
 @Transactional
@@ -29,7 +31,7 @@ public class MemberService {
 
 	public MemberBean login(String account, String password) {
 		if (account != null) {
-            Optional<MemberBean> optional = memberRepository.findById(account);
+            Optional<MemberBean> optional = memberRepository.findByAccount(account);
 
             if (optional.isPresent()) {
                 MemberBean bean = optional.get();
@@ -46,7 +48,7 @@ public class MemberService {
 	}
 
     public MemberBean findByUsername(String username) {
-        Optional<MemberBean> memberOptional = memberRepository.findById(username);
+        Optional<MemberBean> memberOptional = memberRepository.findByAccount(username);
         return memberOptional.orElse(null);
     }
     

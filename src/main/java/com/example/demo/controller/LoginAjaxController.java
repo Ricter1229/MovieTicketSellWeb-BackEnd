@@ -1,18 +1,17 @@
-package tw.com.ispan.controller;
+package com.example.demo.controller;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
-
-import tw.com.ispan.domain.MemberBean;
-import tw.com.ispan.jwt.JsonWebTokenUtility;
-import tw.com.ispan.service.MemberService;
-import tw.com.ispan.service.EmailService;
-
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.domain.MemberBean;
+import com.example.demo.jwt.JsonWebTokenUtility;
+import com.example.demo.service.EmailService;
+import com.example.demo.service.MemberService;
 
 @RestController
 @RequestMapping("/ajax/secure")
@@ -59,7 +58,10 @@ public class LoginAjaxController {
         JSONObject responseJson = new JSONObject()
                 .put("success", true)
                 .put("message", "驗證碼已寄出，請檢查您的信箱")
-                .put("user", bean.getEmail())
+                .put("account", bean.getAccount())
+                .put("email", bean.getEmail())
+                .put("phone", bean.getPhoneNo())
+                .put("birthDate", bean.getBirthDate())
                 .put("token", token)
                 .put("validationCode", validationCode);
         return responseJson.toString();

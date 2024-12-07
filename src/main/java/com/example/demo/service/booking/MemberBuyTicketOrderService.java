@@ -87,24 +87,29 @@ public class MemberBuyTicketOrderService {
         orderDetail.setOrderId(newOrder.getId());
         List<MemberBuyTicketDetailBean> orderDetailList = memberBuyTicketDetailService.insertOrderDetail(orderDetail);
         newOrder.setMemberBuyTicketDetailBeans(orderDetailList);
-
+        
+        
         // 更新座位狀態為已售出
-    	boolean purchaseSuccess = false;
-    	for(String seat : orderDetail.getSeats()) {
-    		purchaseSuccess = seatingListService.purchaseSeat(
-    				orderDetail.getAuditoriumScheduleId(),
-                    seat,
-                    newOrder.getId());
-    		if (!purchaseSuccess) {
-                throw new CustomException("Failed to mark seat " + seat + " as sold.", 400);
-            }
-    	}
+//    	boolean purchaseSuccess = false;
+//    	for(String seat : orderDetail.getSeats()) {
+//    		purchaseSuccess = seatingListService.purchaseSeat(
+//    				orderDetail.getAuditoriumScheduleId(),
+//                    seat,
+//                    newOrder.getId());
+//    		if (!purchaseSuccess) {
+//                throw new CustomException("Failed to mark seat " + seat + " as sold.", 400);
+//            }
+//    	}
         
 
         // redis 設定倒計時
         // 綁定訂單到 Redis，設置 15 分鐘過期時間
         String redisKey = "order-expire:" + newOrder.getId();
-        redisTemplate.opsForValue().set(redisKey, "PENDING", 2, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, "PENDING", 5, TimeUnit.MINUTES);
+        
+     // 在哈希表中保存键值对
+        redisTemplate.opsForHash().put("order-details", redisKey, "PENDING");
+
         
         return newOrder;
     }
@@ -114,7 +119,7 @@ public class MemberBuyTicketOrderService {
 	 * @param orderId 訂單 Id * 
 	 * @param newState 此訂單將要變成的狀態 * 
 	 */
-	public void updateOrderStatus(Integer orderId, String newState) {
+	public Integer updateOrderStatus(Integer orderId, String newState) {
         // 查詢訂單
 		MemberBuyTicketOrderBean order = memberBuyTicketOrderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("Order not found", 404));
@@ -131,6 +136,19 @@ public class MemberBuyTicketOrderService {
         // 更新狀態
         order.setState(newState);
         memberBuyTicketOrderRepository.save(order);
+        
+        if(newState.equals("PAID")) {
+        	try {
+    			for(MemberBuyTicketDetailBean orderDetail : order.getMemberBuyTicketDetailBeans()) {
+    				seatingListService.purchaseSeat(orderDetail.getAuditoriumScheduleId(), orderDetail.getSeat(), order.getId());
+    			}
+    		} catch (Exception e) {
+                throw new CustomException("Failed to set purchase seat. ", 400);
+    		}
+        }
+        redisTemplate.opsForHash().put("order-details", "order-expire:" + orderId, "PAID");        
+
+        return orderId;
     }
 	
 	/**

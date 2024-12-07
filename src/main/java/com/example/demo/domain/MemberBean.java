@@ -1,23 +1,34 @@
-package tw.com.ispan.domain;
+package com.example.demo.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Member")
 public class MemberBean {
 	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+
 	@Column(name = "account")
 	private String account;
 
 	@Override
 	public String toString() {
-		return "MemeberBean [account=" + account + ", password=" + password + ", email=" + email
+		return "MemberBean [id=" + id + ", account=" + account + ", password=" + password + ", email=" + email
 				+ ", phoneNo=" + phoneNo + ", birthDate=" + birthDate + "]";
 	}
-
 
 	@Column(name = "password")
 	private String password;
@@ -25,12 +36,23 @@ public class MemberBean {
 	@Column(name = "email")
 	private String email;
 
-	@Column(name = "phoneNo")
+	@Column(name = "phone_no")
 	private String phoneNo;
 
-	@Column(name = "birthDate")
+	@Column(name = "birth_date")
 	private java.util.Date birthDate;
 	
+	@JsonManagedReference("member")
+	@OneToMany(mappedBy = "member")
+	private List<MemberBuyTicketOrderBean> memberBuyTicketOrders = new ArrayList<>();
+	
+
+	public List<MemberBuyTicketOrderBean> getMemberBuyTicketOrders() {
+		return memberBuyTicketOrders;
+	}
+	public void setMemberBuyTicketOrders(List<MemberBuyTicketOrderBean> memberBuyTicketOrders) {
+		this.memberBuyTicketOrders = memberBuyTicketOrders;
+	}
 	public String getAccount() {
 		return account;
 	}
@@ -60,6 +82,12 @@ public class MemberBean {
 	}
 	public void setBirthDate(java.util.Date birthDate) {
 		this.birthDate = birthDate;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 }
