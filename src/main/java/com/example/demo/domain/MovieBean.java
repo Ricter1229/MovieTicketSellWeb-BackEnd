@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -56,16 +58,39 @@ public class MovieBean {
 	@Column(name="commercialFilmURL")
 	private String commercialFilmURL;
 	
-	@Column(name = "photo", columnDefinition = "image")
+	@Column(name = "photo", columnDefinition = "varbinary(MAX)")
 	private byte[] photo;
-
+	
+	@Column(name="mimeType")
+	private String mimeType;
+		
 	@Override
 	public String toString() {
 		return "MovieBean [id=" + id + ", chineseName=" + chineseName + ", englishName=" + englishName + ", cast="
 				+ cast + ", releasedDate=" + releasedDate + ", outOfDate=" + outOfDate + ", intro=" + intro + ", price="
 				+ price + ", ticketCount=" + ticketCount + ", style=" + style + ", rating=" + rating + ", runTime="
-				+ runTime + ", commercialFilmURL=" + commercialFilmURL + ", photo=" + photo + "]";
+				+ runTime + ", commercialFilmURL=" + commercialFilmURL + ", photo=" + Arrays.toString(photo)
+				+ ", mimeType=" + mimeType + "]";
 	}
+	
+	
+//	@Override
+//	public String toString() {
+//		return "MovieBean [id=" + id + ", chineseName=" + chineseName + ", englishName=" + englishName + ", cast="
+//				+ cast + ", releasedDate=" + releasedDate + ", outOfDate=" + outOfDate + ", intro=" + intro + ", price="
+//				+ price + ", ticketCount=" + ticketCount + ", style=" + style + ", rating=" + rating + ", runTime="
+//				+ runTime + ", commercialFilmURL=" + commercialFilmURL + ", photo=" + photo + "]";
+//	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
 
 	public Integer getId() {
 		return id;
