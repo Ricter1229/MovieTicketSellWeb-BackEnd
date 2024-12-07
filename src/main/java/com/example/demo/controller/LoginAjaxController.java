@@ -2,16 +2,17 @@ package com.example.demo.controller;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.MemberBean;
 import com.example.demo.jwt.JsonWebTokenUtility;
 import com.example.demo.service.EmailService;
 import com.example.demo.service.MemberService;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/ajax/secure")
@@ -44,26 +45,14 @@ public class LoginAjaxController {
             return new JSONObject().put("success", false).put("message", "登入失敗").toString();
         }
 
-        String validationCode = String.format("%04d", new java.util.Random().nextInt(9999));
-
-        // Simulate sending email
-        emailService.sendValidationCode(bean.getEmail(), validationCode);
-
-        // Add code to the response
-        JSONObject user = new JSONObject()
-                .put("account", bean.getAccount())
-                .put("email", bean.getEmail());
-        String token = jsonWebTokenUtility.createToken(user.toString());
-
         JSONObject responseJson = new JSONObject()
                 .put("success", true)
-                .put("message", "驗證碼已寄出，請檢查您的信箱")
+                .put("message", "登入成功")
+                .put("id", bean.getId())
                 .put("account", bean.getAccount())
                 .put("email", bean.getEmail())
                 .put("phone", bean.getPhoneNo())
-                .put("birthDate", bean.getBirthDate())
-                .put("token", token)
-                .put("validationCode", validationCode);
+                .put("birthDate", bean.getBirthDate());
         return responseJson.toString();
 
     }
@@ -82,7 +71,7 @@ public class LoginAjaxController {
         }
 
         // Retrieve the email based on the username
-        MemberBean member = memberService.findByUsername(username);
+        MemberBean member = memberService.findByAccount(username);
         if (member == null) {
             return new JSONObject()
                     .put("success", false)

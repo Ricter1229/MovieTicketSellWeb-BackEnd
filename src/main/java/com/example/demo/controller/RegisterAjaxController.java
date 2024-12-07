@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +14,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.MemberBean;
+import com.example.demo.service.EmailService;
 import com.example.demo.service.MemberService;
 
 @RestController
 @RequestMapping("/ajax/secure")
 @CrossOrigin
 public class RegisterAjaxController {
-    
+
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody MemberBean newMember) {
@@ -33,7 +38,8 @@ public class RegisterAjaxController {
 
             if ("Registration successful!".equals(resultMessage)) {
                 response.put("success", true);
-                response.put("message", resultMessage);
+                response.put("message", "註冊成功");
+                System.out.println(response);
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
@@ -46,4 +52,31 @@ public class RegisterAjaxController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PostMapping("/register-temp")
+    public String registerTemp(@RequestBody MemberBean newMember) {
+        String resultMessage = memberService.registerTemp(newMember);
+        if (!"Registration successful!".equals(resultMessage)) {
+            return new JSONObject().put("success", false).put("message", resultMessage).toString();
+        }
+
+        String validationCode = String.format("%04d", new java.util.Random().nextInt(9999));
+
+        Map<String, MemberBean> session = new HashMap<>();
+        session.put(newMember.getEmail(), newMember); // Store in session or cache (e.g., Redis)
+        emailService.sendValidationCode(newMember.getEmail(), validationCode);
+
+        JSONObject responseJson = new JSONObject()
+                .put("success", true)
+                .put("validationCode", validationCode);
+        System.out.println(responseJson.toString());
+        return responseJson.toString();
+    }
+
+    @PostMapping("/confirm-registration")
+    public String confirmRegistration(@RequestBody MemberBean newMember) {
+        String resultMessage = memberService.register(newMember);
+        return resultMessage;
+    }
+
 }
