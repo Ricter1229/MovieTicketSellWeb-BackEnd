@@ -42,6 +42,7 @@ public class MemberBuyTicketOrderController {
 				request.getTotalAmount(),
 				request.getOrderDetail()
 		);
+		
 		return ApiResponse.success(order.getId());
 	}
 	
@@ -51,10 +52,32 @@ public class MemberBuyTicketOrderController {
 	 * PENDING PAID CANCELED REFUNDED
 	 * @return
 	 */
+//	@PutMapping("/status")
+//	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
+//		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+//		return ApiResponse.success(orderId);
+//	}	
+	/**
+	 * 更改訂單狀態
+	 * @param id
+	 * PENDING PAID CANCELED REFUNDED
+	 * @return
+	 */
 	@PutMapping("/status")
 	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
 		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
-		return ApiResponse.success(orderId);
+		String aioCheckOutALL = orderService.getAioCheckOutALL(request);
+
+		System.out.println("orderId");
+		System.out.println(orderId);
+		aioCheckOutALL = aioCheckOutALL.replaceAll("<script[^>]*>.*?</script>", "");
+		
+		System.out.println("aioCheckOutALL");
+	    System.out.println(aioCheckOutALL);
+		Map<String, Object> returnData = new LinkedHashMap<>();
+		returnData.put("orderId",orderId);
+		returnData.put("netSection", aioCheckOutALL);
+		return ApiResponse.success(returnData);
 	}	
 	
 	@DeleteMapping("/")

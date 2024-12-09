@@ -1,11 +1,16 @@
 package com.example.demo.service.booking;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +19,16 @@ import com.example.demo.domain.MemberBuyTicketDetailBean;
 import com.example.demo.domain.MemberBuyTicketOrderBean;
 import com.example.demo.domain.MovieBean;
 import com.example.demo.dto.api.MemberBuyTicketDetailRequestDto;
+import com.example.demo.dto.api.MemberBuyTicketOrderRequestDto;
 import com.example.demo.exception.CustomException;
 import com.example.demo.repository.MemberBuyTicketOrderRepository;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.repository.MovieRepository;
 
+import ecpay.payment.integration.AllInOne;
+import ecpay.payment.integration.domain.AioCheckOutALL;
 import jakarta.transaction.Transactional;
+
 
 /**
  * 用於處理與訂單相關的操作的服務層
@@ -40,7 +49,8 @@ public class MemberBuyTicketOrderService {
 	private SeatingListService seatingListService;
 	@Autowired
     private RedisTemplate<String, String> redisTemplate;
-	
+	@Value("${netURL}")
+	private static String returnURL;
 	/**
 	 * 根據 member 創建訂單
 	 * @param member 是用戶 * 
@@ -104,7 +114,7 @@ public class MemberBuyTicketOrderService {
         // redis 設定倒計時
         // 綁定訂單到 Redis，設置 15 分鐘過期時間
         String redisKey = "order-expire:" + newOrder.getId();
-        redisTemplate.opsForValue().set(redisKey, "PENDING", 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, "PENDING", 2, TimeUnit.MINUTES);
         
      // 在哈希表中保存键值对
         redisTemplate.opsForHash().put("order-details", redisKey, "PENDING");
@@ -213,6 +223,45 @@ public class MemberBuyTicketOrderService {
 		}
 		
 		return orderList;
+	}
+	
+	//金流
+	public static String getAioCheckOutALL(MemberBuyTicketOrderRequestDto request){
+		AllInOne all = new AllInOne("");
+		AioCheckOutALL obj = new AioCheckOutALL();
+		//產生20碼交易編號亂數
+		String uuId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
+		obj.setMerchantTradeNo(uuId);
+		 // 獲取當前的日期和時間
+        LocalDateTime now = LocalDateTime.now();
+        // 定義日期時間的格式
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        // 格式化當前日期時間
+        String formattedDateTime = now.format(formatter);
+		obj.setMerchantTradeDate(formattedDateTime);
+		
+		obj.setTotalAmount("500");
+//		obj.setTotalAmount(request.getTotalAmount().toString());
+		String seats="";
+		if(request.getOrderDetail()!=null) {
+			
+			for (String seat : request.getOrderDetail().getSeats()) {
+				seats=seat+" ";
+			}
+		}
+		if(request!=null) {
+			
+			String tradeDesc=request.getMemberId()+" "+request.getMovieId()+" "+request.getOrderId()+" ";
+			tradeDesc=tradeDesc+seats;
+			obj.setTradeDesc(tradeDesc);
+			String testItem=request.getMovieId()+" ";
+			testItem=testItem+seats;
+			obj.setItemName(testItem);
+		}
+		obj.setReturnURL(returnURL+"/views/booking/TicketDetail.vue");
+		obj.setNeedExtraPaidInfo("N");
+		String form = all.aioCheckOut(obj, null);
+		return form;
 	}
 	
 }
