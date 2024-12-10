@@ -5,7 +5,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +23,7 @@ import com.example.demo.domain.MemberBuyTicketOrderBean;
 import com.example.demo.domain.MovieBean;
 import com.example.demo.dto.api.MemberBuyTicketDetailRequestDto;
 import com.example.demo.dto.api.MemberBuyTicketOrderRequestDto;
+import com.example.demo.dto.api.RefundRequestDto;
 import com.example.demo.exception.CustomException;
 import com.example.demo.repository.MemberBuyTicketOrderRepository;
 import com.example.demo.repository.MemberRepository;
@@ -27,6 +31,12 @@ import com.example.demo.repository.MovieRepository;
 
 import ecpay.payment.integration.AllInOne;
 import ecpay.payment.integration.domain.AioCheckOutALL;
+import ecpay.payment.integration.domain.AioCheckOutOneTime;
+import ecpay.payment.integration.domain.DoActionObj;
+import ecpay.payment.integration.domain.QueryTradeObj;
+import ecpay.payment.integration.ecpayOperator.EcpayFunction;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 
 
@@ -49,8 +59,12 @@ public class MemberBuyTicketOrderService {
 	private SeatingListService seatingListService;
 	@Autowired
     private RedisTemplate<String, String> redisTemplate;
-	@Value("${netURL}")
-	private static String returnURL;
+	@Value("${returnURL}")
+	private String returnURL;
+	@Value("${backReturnURL}")
+	private String backReturnURL;
+	private static final AllInOne all = new AllInOne("");
+
 	/**
 	 * 根據 member 創建訂單
 	 * @param member 是用戶 * 
@@ -226,8 +240,7 @@ public class MemberBuyTicketOrderService {
 	}
 	
 	//金流
-	public static String getAioCheckOutALL(MemberBuyTicketOrderRequestDto request){
-		AllInOne all = new AllInOne("");
+	public String getAioCheckOutALL(MemberBuyTicketOrderRequestDto request){
 		AioCheckOutALL obj = new AioCheckOutALL();
 		//產生20碼交易編號亂數
 		String uuId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
@@ -240,7 +253,7 @@ public class MemberBuyTicketOrderService {
         String formattedDateTime = now.format(formatter);
 		obj.setMerchantTradeDate(formattedDateTime);
 		
-		obj.setTotalAmount("500");
+		obj.setTotalAmount("114514");
 //		obj.setTotalAmount(request.getTotalAmount().toString());
 		String seats="";
 		if(request.getOrderDetail()!=null) {
@@ -258,10 +271,81 @@ public class MemberBuyTicketOrderService {
 			testItem=testItem+seats;
 			obj.setItemName(testItem);
 		}
-		obj.setReturnURL(returnURL+"/views/booking/TicketDetail.vue");
-		obj.setNeedExtraPaidInfo("N");
+		obj.setReturnURL(backReturnURL+"/api/orders/receive");
+		obj.setClientBackURL (returnURL+"/booking/ticket-detail");
+//		System.out.println("obj.setOrderResultURL:"+returnURL+"/booking/ticket-detail");
+		System.out.println("obj.setReturnURL:"+backReturnURL+"/api/orders/receive");
+		obj.setNeedExtraPaidInfo("Y");
 		String form = all.aioCheckOut(obj, null);
 		return form;
 	}
+	
+	public String refund(RefundRequestDto refundRequest) throws Exception {
+        
+        // 設定退款參數
+		DoActionObj obj = new DoActionObj(); 
+		obj.setAction("N");
+		obj.setMerchantID("3002607");
+		obj.setMerchantTradeNo(refundRequest.getMerchantTradeNo());
+		obj.setTotalAmount("114514");
+		obj.setTradeNo(refundRequest.getTradeNo());//
+//        refundParams.setMerchantID("3002607");   // 綠界商店代號
+////        refundParams.setMerchantTradeNo(refundRequest.getMerchantTradeNo());
+//        refundParams.setMerchantTradeNo(refundRequest.getMerchantTradeNo());
+////        refundParams.setTotalAmount(refundRequest.getRefundAmount());
+//        refundParams.setMerchantTradeDate(refundRequest.getMerchantTradeDate());
+//        refundParams.setTradeDesc("test Description");
+//        refundParams.setTotalAmount("114514");
+//        refundParams.setReturnURL(backReturnURL+"/api/orders/receive");
+//		refundParams.setNeedExtraPaidInfo("N");
+////        refundParams.setReason(refundRequest.getReason());
+        // 呼叫退款 API
+        String result;
+        try {
+            result = all.doAction(obj);
+            System.out.println("退款結果: " + result);
+        } catch (Exception e) {
+            throw new Exception("退款失敗: " + e.getMessage());
+        } 
+
+        return result;
+    }
+	//綠界信用卡付款完成後處理
+	public boolean handleEcpayNotification(Hashtable<String, String> notifyParams) {
+        try {
+        	//驗證檢查碼
+            boolean isValid = all.compareCheckMacValue(notifyParams);
+            notifyParams.forEach((key, value) -> {
+                System.out.println("Key: " + key + ", Value: " + value);
+            });
+            //確保前後資訊沒有遭到調換
+            if (isValid) {
+                // 根據通知資料更新訂單狀態
+                String merchantTradeNo = notifyParams.get("MerchantTradeNo"); // 訂單編號
+                String rtnCode = notifyParams.get("RtnCode"); // 回傳狀態碼
+                String paymentDate = notifyParams.get("PaymentDate"); // 付款日期
+                
+                String CheckMacValue=notifyParams.get("CheckMacValue");//驗證碼
+                String TradeNo=notifyParams.get("TradeNo");//綠界的訂單編號
+                String TradeDate=notifyParams.get("TradeDate");//交易日期
+
+                if ("1".equals(rtnCode)) {
+                    // 處理成功邏輯，例如更新資料庫訂單狀態
+                    System.out.println("訂單：" + merchantTradeNo + " 已成功支付，付款時間：" + paymentDate);
+                } else {
+                    // 處理其他狀態邏輯
+                    System.out.println("訂單：" + merchantTradeNo + " 未成功支付，狀態碼：" + rtnCode);
+                }
+                return true;
+            } else {
+                System.err.println("綠界檢查碼驗證失敗");
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("處理綠界通知失敗：" + e.getMessage());
+            return false;
+        }
+    }
+
 	
 }

@@ -5,11 +5,13 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +19,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
 import com.example.demo.domain.AuditoriumScheduleBean;
 import com.example.demo.domain.MemberBuyTicketOrderBean;
 import com.example.demo.dto.api.MemberBuyTicketOrderRequestDto;
+import com.example.demo.dto.api.RefundRequestDto;
+import com.example.demo.dto.api.SearchRequestDto;
 import com.example.demo.service.booking.MemberBuyTicketOrderService;
+
+import ecpay.payment.integration.domain.AioCheckOutApplePay;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin
@@ -70,15 +78,66 @@ public class MemberBuyTicketOrderController {
 
 		System.out.println("orderId");
 		System.out.println(orderId);
+//		System.out.println("aioCheckOutALL");
 		aioCheckOutALL = aioCheckOutALL.replaceAll("<script[^>]*>.*?</script>", "");
 		
-		System.out.println("aioCheckOutALL");
-	    System.out.println(aioCheckOutALL);
+//	    System.out.println(aioCheckOutALL);
 		Map<String, Object> returnData = new LinkedHashMap<>();
 		returnData.put("orderId",orderId);
 		returnData.put("netSection", aioCheckOutALL);
 		return ApiResponse.success(returnData);
 	}	
+	
+//	public static String genAioCheckOutApplePay(){
+//		AioCheckOutApplePay obj = new AioCheckOutApplePay();
+//		obj.setMerchantTradeNo("testapplepay052302");
+//		obj.setMerchantTradeDate("2017/01/01 08:05:23");
+//		obj.setTotalAmount("50");
+//		obj.setTradeDesc("test Description");
+//		obj.setItemName("TestItem");
+//		obj.setReturnURL("http://211.23.128.214:5000");
+//		obj.setNeedExtraPaidInfo("N");
+//		String form = all.aioCheckOut(obj, null);
+//		return form;
+//	}
+	@PostMapping("/refund")
+    public ApiResponse processRefund(@RequestBody RefundRequestDto refundRequest) {
+        try {
+            String result = orderService.refund(refundRequest);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            return ApiResponse.fail(400,"","錯誤處理");
+        }
+    }
+
+	
+	/**
+	 * 綠界刷卡後返回網址
+
+	 */
+	 @PostMapping("/receive")
+	    public String handleEcpayNotification(@RequestParam Map<String,String> notifyParams) {
+		 System.out.println("後端posthand");
+
+		 Hashtable<String, String> hashtable = new Hashtable<>(notifyParams);
+	        try {
+	            boolean isvalid = orderService.handleEcpayNotification(hashtable);
+
+	            if (isvalid) {
+	                // 處理成功後，綠界要求回傳固定字串 "1|OK"
+	            	System.out.println("1|OK");
+	                return "1|OK";
+	            } else {
+	                // 檢查碼驗證失敗或其他錯誤
+	            	System.out.println("檢查碼驗證失敗或其他錯誤");
+	                return "0|FAIL";
+	            }
+	        } catch (Exception e) {
+	            // 捕獲異常並返回失敗
+	            System.err.println("綠界通知處理失敗：" + e.getMessage());
+	            return "0|FAIL";
+	        }
+	    }
 	
 	@DeleteMapping("/")
 	public ApiResponse<String> removeOrder(@RequestBody MemberBuyTicketOrderRequestDto request) {
