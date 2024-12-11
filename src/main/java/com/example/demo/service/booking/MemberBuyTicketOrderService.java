@@ -392,6 +392,20 @@ public class MemberBuyTicketOrderService {
             return false;
         }
     }
-
+	public Map<String,Object> setOrderAndMovieNameById(Integer id){
+		Map<String, Object> returnData = new LinkedHashMap<>();
+		if(id!=null && id!=0) {
+			MemberBuyTicketOrderBean order =findById(id);
+			returnData.put("order",order);
+			if(order.getMovieId()!=null && order.getMovieId()!=0) {
+				MovieBean movie = movieRepository.findById(order.getMovieId()).orElseThrow(() -> new CustomException("Movie not found", 404));
+				returnData.put("movieName", movie.getChineseName());
+				returnData.put("movieReleasedDate", movie.getReleasedDate());
+			}
+			returnData.put("storeName",order.getMemberBuyTicketDetailBeans().get(0).getStore().getName());
+			
+		}
+		return returnData;
+	}
 	
 }

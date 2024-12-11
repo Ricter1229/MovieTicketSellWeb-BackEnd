@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -144,6 +145,12 @@ public class MemberBuyTicketOrderController {
 	public ApiResponse<Object> getOrderById(@RequestBody MemberBuyTicketOrderRequestDto request) {
 		MemberBuyTicketOrderBean order = orderService.findById(request.getOrderId());
 		return ApiResponse.success(order);
+	}
+	
+	@GetMapping("/{id}")
+	public ApiResponse<Object> getOrderById(@PathVariable Integer id) {
+		Map<String, Object> returnData = orderService.setOrderAndMovieNameById(id);
+		return ApiResponse.success(returnData);
 	}
 
 	/**
