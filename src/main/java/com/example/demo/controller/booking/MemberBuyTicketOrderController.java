@@ -50,8 +50,15 @@ public class MemberBuyTicketOrderController {
 				request.getTotalAmount(),
 				request.getOrderDetail()
 		);
+		//原本updateOrderStatus
+//		orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+		orderService.updateOrderStatus(order.getId(), "PAID");
+		String ecPayWeb = orderService.ecPayService(request,order.getId());
 		
-		return ApiResponse.success(order.getId());
+		Map<String, Object> returnData = new LinkedHashMap<>();
+		returnData.put("orderId",order.getId());
+		returnData.put("netSection", ecPayWeb);
+		return ApiResponse.success(returnData);
 	}
 	
 	/**
@@ -71,35 +78,24 @@ public class MemberBuyTicketOrderController {
 	 * PENDING PAID CANCELED REFUNDED
 	 * @return
 	 */
-	@PutMapping("/status")
-	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
-		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
-		String aioCheckOutALL = orderService.getAioCheckOutALL(request);
-
-		System.out.println("orderId");
-		System.out.println(orderId);
-//		System.out.println("aioCheckOutALL");
-		aioCheckOutALL = aioCheckOutALL.replaceAll("<script[^>]*>.*?</script>", "");
-		
-//	    System.out.println(aioCheckOutALL);
-		Map<String, Object> returnData = new LinkedHashMap<>();
-		returnData.put("orderId",orderId);
-		returnData.put("netSection", aioCheckOutALL);
-		return ApiResponse.success(returnData);
-	}	
+//	@PutMapping("/status")
+//	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
+//		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+//		String aioCheckOutALL = orderService.getAioCheckOutALL(request);
+//
+//		System.out.println("orderId");
+//		System.out.println(orderId);
+//		aioCheckOutALL = aioCheckOutALL.replaceAll("<script[^>]*>.*?</script>", "");
+//		
+//		Map<String, Object> returnData = new LinkedHashMap<>();
+//		returnData.put("orderId",orderId);
+//		returnData.put("netSection", aioCheckOutALL);
+//		return ApiResponse.success(returnData);
+//	}	
 	
-//	public static String genAioCheckOutApplePay(){
-//		AioCheckOutApplePay obj = new AioCheckOutApplePay();
-//		obj.setMerchantTradeNo("testapplepay052302");
-//		obj.setMerchantTradeDate("2017/01/01 08:05:23");
-//		obj.setTotalAmount("50");
-//		obj.setTradeDesc("test Description");
-//		obj.setItemName("TestItem");
-//		obj.setReturnURL("http://211.23.128.214:5000");
-//		obj.setNeedExtraPaidInfo("N");
-//		String form = all.aioCheckOut(obj, null);
-//		return form;
-//	}
+	
+	
+	//退款
 	@PostMapping("/refund")
     public ApiResponse processRefund(@RequestBody RefundRequestDto refundRequest) {
         try {
@@ -113,7 +109,6 @@ public class MemberBuyTicketOrderController {
 	
 	/**
 	 * 綠界刷卡後返回網址
-
 	 */
 	 @PostMapping("/receive")
 	    public String handleEcpayNotification(@RequestParam Map<String,String> notifyParams) {

@@ -15,7 +15,7 @@ import lombok.Setter;
 @Data
 public class RefundRequestDto {
 	 private String merchantTradeNo; // 原訂單編號
-	 private String refundAmount;   // 退款金額
+	 private String totalAmount;   // 退款金額
 	 private String tradeNo;
 //	 private String reason;         // 退款原因
 
