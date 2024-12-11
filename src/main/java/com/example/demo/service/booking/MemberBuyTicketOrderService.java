@@ -382,7 +382,6 @@ public class MemberBuyTicketOrderService {
                     // 處理其他狀態邏輯
                     System.out.println("訂單：" + merchantTradeNo + " 未成功支付，狀態碼：" + rtnCodeStr);
                 }
-                System.out.println("6");
                 return true;
 	            } else {
 	                System.err.println("綠界檢查碼驗證失敗");
