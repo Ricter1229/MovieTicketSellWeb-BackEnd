@@ -260,6 +260,11 @@ public class MemberBuyTicketOrderService {
 		//產生20碼交易編號亂數
 		String uuId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
 		obj.setMerchantTradeNo(uuId);
+		Optional<MemberBuyTicketOrderBean> byId = memberBuyTicketOrderRepository.findById(id);
+		if (byId.isPresent()) {
+			MemberBuyTicketOrderBean orderBean = byId.get();
+			orderBean.setMerchantTradeNo(uuId);
+		}
 		 // 獲取當前的日期和時間
         LocalDateTime now = LocalDateTime.now();
         // 定義日期時間的格式
@@ -309,7 +314,7 @@ public class MemberBuyTicketOrderService {
 		DoActionObj obj = new DoActionObj(); 
 		obj.setAction("N");
 //		obj.setMerchantID("3002607");
-		obj.setMerchantTradeNo(refundRequest.getMerchantTradeNo());
+//		obj.setMerchantTradeNo(refundRequest.getMerchantTradeNo());
 		obj.setTotalAmount(refundRequest.getTotalAmount());
 //		obj.setTotalAmount(refundRequest.getTotalAmount());
 		obj.setTradeNo(refundRequest.getTradeNo());
