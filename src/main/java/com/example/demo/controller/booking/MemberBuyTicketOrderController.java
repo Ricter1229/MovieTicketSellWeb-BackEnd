@@ -5,25 +5,34 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
 import com.example.demo.domain.AuditoriumScheduleBean;
 import com.example.demo.domain.MemberBuyTicketOrderBean;
 import com.example.demo.dto.api.MemberBuyTicketOrderRequestDto;
+import com.example.demo.dto.api.RefundRequestDto;
+import com.example.demo.dto.api.SearchRequestDto;
 import com.example.demo.service.booking.MemberBuyTicketOrderService;
+
+import ecpay.payment.integration.domain.AioCheckOutApplePay;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin
@@ -42,7 +51,15 @@ public class MemberBuyTicketOrderController {
 				request.getTotalAmount(),
 				request.getOrderDetail()
 		);
-		return ApiResponse.success(order.getId());
+		//原本updateOrderStatus
+//		orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+		orderService.updateOrderStatus(order.getId(), "PAID");
+		String ecPayWeb = orderService.ecPayService(request,order.getId());
+		
+		Map<String, Object> returnData = new LinkedHashMap<>();
+		returnData.put("orderId",order.getId());
+		returnData.put("netSection", ecPayWeb);
+		return ApiResponse.success(returnData);
 	}
 	
 	/**
@@ -51,11 +68,72 @@ public class MemberBuyTicketOrderController {
 	 * PENDING PAID CANCELED REFUNDED
 	 * @return
 	 */
-	@PutMapping("/status")
-	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
-		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
-		return ApiResponse.success(orderId);
-	}	
+//	@PutMapping("/status")
+//	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
+//		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+//		return ApiResponse.success(orderId);
+//	}	
+	/**
+	 * 更改訂單狀態
+	 * @param id
+	 * PENDING PAID CANCELED REFUNDED
+	 * @return
+	 */
+//	@PutMapping("/status")
+//	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
+//		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+//		String aioCheckOutALL = orderService.getAioCheckOutALL(request);
+//
+//		System.out.println("orderId");
+//		System.out.println(orderId);
+//		aioCheckOutALL = aioCheckOutALL.replaceAll("<script[^>]*>.*?</script>", "");
+//		
+//		Map<String, Object> returnData = new LinkedHashMap<>();
+//		returnData.put("orderId",orderId);
+//		returnData.put("netSection", aioCheckOutALL);
+//		return ApiResponse.success(returnData);
+//	}	
+	
+	
+	
+	//退款
+	@PostMapping("/refund")
+    public ApiResponse processRefund(@RequestBody RefundRequestDto refundRequest) {
+        try {
+            String result = orderService.refund(refundRequest);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            return ApiResponse.fail(400,"","錯誤處理");
+        }
+    }
+
+	
+	/**
+	 * 綠界刷卡後返回網址
+	 */
+	 @PostMapping("/receive")
+	    public String handleEcpayNotification(@RequestParam Map<String,String> notifyParams) {
+		 System.out.println("後端posthand");
+
+		 Hashtable<String, String> hashtable = new Hashtable<>(notifyParams);
+	        try {
+	            boolean isvalid = orderService.handleEcpayNotification(hashtable);
+
+	            if (isvalid) {
+	                // 處理成功後，綠界要求回傳固定字串 "1|OK"
+	            	System.out.println("1|OK");
+	                return "1|OK";
+	            } else {
+	                // 檢查碼驗證失敗或其他錯誤
+	            	System.out.println("檢查碼驗證失敗或其他錯誤");
+	                return "0|FAIL";
+	            }
+	        } catch (Exception e) {
+	            // 捕獲異常並返回失敗
+	            System.err.println("綠界通知處理失敗：" + e.getMessage());
+	            return "0|FAIL";
+	        }
+	    }
 	
 	@DeleteMapping("/")
 	public ApiResponse<String> removeOrder(@RequestBody MemberBuyTicketOrderRequestDto request) {
@@ -67,6 +145,12 @@ public class MemberBuyTicketOrderController {
 	public ApiResponse<Object> getOrderById(@RequestBody MemberBuyTicketOrderRequestDto request) {
 		MemberBuyTicketOrderBean order = orderService.findById(request.getOrderId());
 		return ApiResponse.success(order);
+	}
+	
+	@GetMapping("/{id}")
+	public ApiResponse<Object> getOrderById(@PathVariable Integer id) {
+		Map<String, Object> returnData = orderService.setOrderAndMovieNameById(id);
+		return ApiResponse.success(returnData);
 	}
 
 	/**

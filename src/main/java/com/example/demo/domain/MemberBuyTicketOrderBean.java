@@ -65,6 +65,24 @@ public class MemberBuyTicketOrderBean {
 
     @Column(name = "state")
     private String state;
+    
+    @Column(name = "merchantTradeNo")
+    private String merchantTradeNo;
+    
+    @Column(name = "rtnCode")
+    private Integer rtnCode;
+    
+    @Column(name = "paymentDate")
+    private String paymentDate;
+    
+    @Column(name = "checkMacValue")
+    private String checkMacValue;
+    
+    @Column(name = "tradeNo")
+    private String tradeNo;
+    
+    @Column(name = "tradeDate")
+    private String tradeDate;
 
 	@Temporal(TemporalType.TIMESTAMP)
     @Column(name = "timeBuying")
