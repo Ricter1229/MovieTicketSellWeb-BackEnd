@@ -40,6 +40,9 @@ public class AuditoriumBean {
 	)
 	private StoreBean store;
 	
+	@Column(name="storeId")
+	private Integer storeId;
+	
 	@Column(name="name")
 	private String name;
 	

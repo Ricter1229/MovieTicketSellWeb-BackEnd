@@ -30,6 +30,8 @@ public class AuditoriumScheduleBean {
 	@Column(name="id")
 	private Integer id;
 	
+	@Column(name="auditoriumId")
+	private Integer auditoriumId;
 	@JsonBackReference("auditoriumScheduleBeans")
     @ManyToOne
 	@JoinColumn(
@@ -40,6 +42,8 @@ public class AuditoriumScheduleBean {
 	)
 	private AuditoriumBean auditoriumBean;
 	
+	@Column(name="storeReleaseMovieId")
+	private Integer storeReleaseMovieId;
 	@JsonBackReference("auditoriumScheduleBeans")
     @ManyToOne
 	@JoinColumn(
@@ -60,10 +64,10 @@ public class AuditoriumScheduleBean {
 	private byte[] soldSeatsJson;
 	
 	@JsonManagedReference("auditoriumScheduleBean")
-	@OneToMany(mappedBy = "auditoriumScheduleBean")
+	@OneToMany(mappedBy = "auditoriumScheduleBean" )
 	private List<MemberBuyTicketDetailBean> memberBuyTicketDetailBeans = new ArrayList<>();
 	
 	@JsonManagedReference("auditoriumScheduleBean")
-	@OneToMany(mappedBy = "auditoriumScheduleBean")
+	@OneToMany(mappedBy = "auditoriumScheduleBean" , cascade = CascadeType.ALL)
 	private List<SeatingListBean> SeatingListBeans = new ArrayList<>();
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -32,7 +33,7 @@ public class MovieVersionBean {
 	@Column(name="movieId")
 	private Integer movieId;
 	
-	@JsonBackReference("MovieVersionBeans")
+	@JsonBackReference("movieVersionBeans")
     @ManyToOne
 	@JoinColumn(
 			insertable = false, 
@@ -42,8 +43,18 @@ public class MovieVersionBean {
 	)
 	private MovieBean movie;
 	
-	@Column(name="version")
-	private String version;
+	@Column(name="versionId")
+	private Integer versionId;
+	
+	@JsonIgnoreProperties("versionBeans")
+    @ManyToOne
+	@JoinColumn(
+			insertable = false, 
+			updatable = false,
+			name = "versionId",
+			referencedColumnName = "id"
+	)
+	private VersionBean versionBean;
 	
 	@JsonManagedReference("movieVersion")
 	@OneToMany(mappedBy = "movieVersion")

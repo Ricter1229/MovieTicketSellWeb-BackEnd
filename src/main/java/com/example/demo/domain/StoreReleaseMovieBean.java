@@ -29,6 +29,9 @@ public class StoreReleaseMovieBean {
 	@Column(name="id")
 	private Integer id;
     
+	@Column(name="MovieVersionId")
+	private Integer movieVersionId;
+	
     @JsonBackReference("storeReleaseMovieBeans")
     @ManyToOne
 	@JoinColumn(
@@ -39,6 +42,9 @@ public class StoreReleaseMovieBean {
 	)
 	private MovieVersionBean movieVersion;
 
+    @Column(name="storeId")
+	private Integer storeId;
+    
     @JsonBackReference("storeReleaseMovieBeans")
     @ManyToOne
 	@JoinColumn(
@@ -50,6 +56,6 @@ public class StoreReleaseMovieBean {
 	private StoreBean store; 
     
     @JsonManagedReference("storeReleaseMovieBean")
-	@OneToMany(mappedBy = "storeReleaseMovieBean")
+	@OneToMany(mappedBy = "storeReleaseMovieBean", cascade = CascadeType.ALL)
 	private List<AuditoriumScheduleBean> auditoriumScheduleBeans = new ArrayList<>();
 }

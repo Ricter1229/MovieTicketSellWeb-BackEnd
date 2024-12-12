@@ -32,8 +32,14 @@ public class MovieController {
 	@PostMapping("/find")
 	public FindMovieResponseRecord find(@RequestBody String entity) {
 		long count = movieService.count(entity);
-		List<FindMovieResponseDTO> products = movieService.find(entity);
-		return new FindMovieResponseRecord(count, products, false, "");
+		try {
+			List<FindMovieResponseDTO> products = movieService.find(entity);
+			return new FindMovieResponseRecord(count, products, false, "");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			;
+		}
+		return null;
 	}
 
 //	@GetMapping("/movies/{id}")
@@ -72,7 +78,6 @@ public class MovieController {
 	@PostMapping("/addMovie")
 	public MovieResponse create(@RequestBody String entity) {
 		JSONObject obj = new JSONObject(entity);
-		System.out.print(obj.toString());
 		String chineseName = obj.isNull("chineseName") ? null : obj.getString("chineseName");
 		if (chineseName == null) {
 			return new MovieResponse(0, null, false, "電影名是必要欄位");
@@ -88,10 +93,7 @@ public class MovieController {
 
 	@PutMapping("/movies/{id}")
 	public MovieResponse modify(@PathVariable Integer id, @RequestBody String entity) {
-
 		MovieBean update = movieService.modify(entity);
-		System.out.print(entity);
-		System.out.print(update);
 		if (update == null) {
 			return new MovieResponse(0, null, false, "修改失敗");
 		} else {

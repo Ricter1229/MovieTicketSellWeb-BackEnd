@@ -47,6 +47,15 @@ public class AuditoriumController {
 			e.printStackTrace();
 		}
 		return json.toString();
-
+	}
+	
+	@PostMapping("/getAll")
+	public ApiResponse<Object> getAllAuditoriumWithStoreId(@RequestBody AuditoriumRequestDto request) {
+		return ApiResponse.success(audService.findAllAuditoriumWithStoreId(request.getStoreId()));
+	}
+	
+	@PostMapping("/insert-auditorium")
+	public ApiResponse<Object> insertAuditorium(@RequestBody AuditoriumRequestDto request) {
+		return ApiResponse.success(audService.insertAuditorium(request.getStoreId(), request.getAuditoriumList()));
 	}
 }

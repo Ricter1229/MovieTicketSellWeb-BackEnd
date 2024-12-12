@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.MovieBean;
+import com.example.demo.domain.MovieVersionBean;
 import com.example.demo.dto.FindMovieResponseDTO;
 import com.example.demo.dto.api.PhotoTypeDto;
 import com.example.demo.repository.MovieRepository;
@@ -24,6 +26,8 @@ public class MovieService {
 	
 	@Autowired
 	private MovieRepository movieRepo;
+	@Autowired
+	private MovieVersionService movieVersionService;
 	
 	public long count(String json) {
 		try {
@@ -43,7 +47,7 @@ public class MovieService {
 			List<FindMovieResponseDTO> list = new ArrayList<>();
 			for(MovieBean movie : movies) {
 				FindMovieResponseDTO resp = new FindMovieResponseDTO();
-				resp.setMovie(movie);
+				resp.setMovie(movie);				
 				Base64.Encoder encoder = Base64.getEncoder();
 				if(movie.getPhoto()!=null) {
 		            String mainPhoto = encoder.encodeToString(movie.getPhoto());
@@ -57,7 +61,7 @@ public class MovieService {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return new ArrayList<>();
 	}
 	
 	public FindMovieResponseDTO findById(Integer id) {
@@ -103,7 +107,7 @@ public class MovieService {
 			String rating = obj.isNull("rating") ? null : obj.getString("rating");
 			String runTime = obj.isNull("runTime") ? null : obj.getString("runTime");
 			String commercialFilmURL = obj.isNull("commercialFilmURL") ? null : obj.getString("commercialFilmURL");
-			System.out.print(obj.getString("photo"));
+
 			String mainPhotoStr=obj.isNull("photo")? null:obj.getString("photo");
 			
 			PhotoTypeDto mainPhotoDto = PhotoTurn.base64ToByte(mainPhotoStr);
@@ -124,7 +128,20 @@ public class MovieService {
 				insert.setRating(rating);
 				insert.setRunTime(runTime);
 				insert.setCommercialFilmURL(commercialFilmURL);
-				return movieRepo.save(insert);
+				
+				MovieBean returnMovie = movieRepo.save(insert);
+				List<MovieVersionBean> movieVersionList = new ArrayList<>();
+				if(obj.getJSONArray("movieVersions").length() != 0) {
+					JSONArray movieVersions = obj.getJSONArray("movieVersions");
+					for (int i = 0; i < movieVersions.length(); i++) {
+					    JSONObject version = movieVersions.getJSONObject(i);
+					    MovieVersionBean movieVersion = movieVersionService.insert(returnMovie.getId(), version.getInt("id"), returnMovie);
+					    movieVersionList.add(movieVersion);
+					}
+				}
+				returnMovie.setMovieVersionBeans(movieVersionList);
+				
+				return returnMovie;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -149,11 +166,11 @@ public class MovieService {
 			String runTime = obj.isNull("runTime") ? null : obj.getString("runTime");
 			String commercialFilmURL = obj.isNull("commercialFilmURL") ? null : obj.getString("commercialFilmURL");
 			String mainPhotoStr=obj.isNull("photo")? null:obj.getString("photo");
-			
-			PhotoTypeDto mainPhotoDto = PhotoTurn.base64ToByte(mainPhotoStr);
-			
-			
-			
+
+			PhotoTypeDto mainPhotoDto = null;
+			if(mainPhotoStr != null)
+				mainPhotoDto = PhotoTurn.base64ToByte(mainPhotoStr);
+						
 			if (id != null) {
 				Optional<MovieBean> optional = movieRepo.findById(id);
 				if(optional.isPresent()) {
@@ -170,10 +187,28 @@ public class MovieService {
 					update.setRating(rating);
 					update.setRunTime(runTime);
 					update.setCommercialFilmURL(commercialFilmURL);
-					update.setPhoto(mainPhotoDto.getPhoto());				                          
-					update.setMimeType(mainPhotoDto.getMimeType());
+					if(mainPhotoDto != null) {
+						update.setPhoto(mainPhotoDto.getPhoto());				                          
+						update.setMimeType(mainPhotoDto.getMimeType());
+					}
+					update = movieRepo.save(update);
+					System.out.println("4951984589459848     " + update.getId());
+					if(obj.has("movieVersions") && !obj.isNull("movieVersions")) {
+						JSONArray movieVersions = obj.getJSONArray("movieVersions");
+						movieVersionService.deleteAll(update.getId()); 
+
+						List<MovieVersionBean> movieVersionList = new ArrayList<>();
+						if(obj.getJSONArray("movieVersions").length() != 0) {
+							for (int i = 0; i < movieVersions.length(); i++) {
+							    JSONObject version = movieVersions.getJSONObject(i);
+							    MovieVersionBean movieVersion = movieVersionService.insert(update.getId(), version.getInt("id"), update);
+							    movieVersionList.add(movieVersion);
+							}
+						}
+						update.setMovieVersionBeans(movieVersionList);
+					}
 					
-					return movieRepo.save(update);
+					return update;
 				}
 			}
 		}  catch (Exception e) {
@@ -228,6 +263,7 @@ public class MovieService {
 		if(bean!=null && bean.getId()!=null) {
 			Optional<MovieBean> optional = movieRepo.findById(bean.getId());
 			if(optional.isPresent()) {
+				movieVersionService.deleteAll(bean.getId());
 				movieRepo.deleteById(bean.getId());
 				return true;
 			}
