@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.api.common.ApiResponse;
 import com.example.demo.domain.StoreBean;
 import com.example.demo.domain.StoreSubPhotoBean;
 import com.example.demo.dto.RegionResponse;
@@ -26,7 +27,9 @@ import com.example.demo.dto.api.RegionDto;
 import com.example.demo.dto.api.StoreFindDto;
 import com.example.demo.dto.api.StoreInnerDto;
 import com.example.demo.dto.api.StoreOuterDto;
+import com.example.demo.dto.internal.ScheduleInternalDto;
 import com.example.demo.repository.StoreSubPhotoRepository;
+import com.example.demo.service.AuditoriumScheduleService;
 import com.example.demo.service.StoreService;
 import com.example.demo.service.StoreSubPhotoService;
 import com.example.demo.util.JsonToSomething;
@@ -42,7 +45,8 @@ public class StoreController {
 	private StoreSubPhotoService subPhotoService;
 	@Autowired
 	private StoreSubPhotoRepository storeSubRepo;
-
+	@Autowired
+	private AuditoriumScheduleService auditoriumScheduleService;
 //	傳一個string進來回傳原本的json
 //	@PostMapping("/insert")
 //	public String storeInsert(@RequestBody String jsonString) {
@@ -233,4 +237,10 @@ public class StoreController {
 			}
 		}
 	}
+	
+	@GetMapping("/{storeId}/schedules")
+    public ApiResponse<List<ScheduleInternalDto>> getSchedules(@PathVariable Integer storeId) {
+        List<ScheduleInternalDto> schedules = auditoriumScheduleService.getSchedulesByStoreIdAndDateRange(storeId);
+        return ApiResponse.success(schedules);
+    }
 }

@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +20,7 @@ import com.example.demo.dto.api.StoreFindDto;
 import com.example.demo.dto.api.StoreInnerDto;
 import com.example.demo.dto.api.StoreOuterDto;
 import com.example.demo.dto.api.StoreSubPhotoDto;
+import com.example.demo.dto.internal.StoreInternalDto;
 import com.example.demo.repository.StoreRepository;
 import com.example.demo.util.PhotoTurn;
 
@@ -256,4 +259,29 @@ public class StoreService {
 		return dtos.toArray(new StoreSubPhotoDto[0]);
 	}
 	
+	public List<StoreInternalDto> getStoresByMovieIdAndDateRange(Integer movieId) {
+        if (movieId == null) {
+            throw new IllegalArgumentException("Movie ID cannot be null");
+        }
+
+        // 计算日期范围
+        Date today = new Date();
+        
+        // 计算一周后的日期
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        Date startOfToday = calendar.getTime();
+
+        // 设置为一周后
+        calendar.add(Calendar.DAY_OF_MONTH, 7);
+        Date endOfNextWeek = calendar.getTime();
+
+        // 查询
+        return sr.findDistinctStoresByMovieIdAndDateRange(movieId, startOfToday, endOfNextWeek);
+    }
 }

@@ -60,7 +60,7 @@ public class SeatController {
      */
     @PostMapping("/create")
     public ApiResponse<Object> createSeat(@RequestBody SeatRequestDto request) {
-		seatingListService.insertSeat(request.getAuditoriumScheduleId());
+//		seatingListService.insertSeat(request.getAuditoriumScheduleId(), request.getAuditoriumScheduleId());
         return ApiResponse.success("Seat released successfully");
     }
     

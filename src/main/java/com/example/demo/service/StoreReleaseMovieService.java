@@ -4,17 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.AuditoriumScheduleBean;
-import com.example.demo.domain.MovieBean;
 import com.example.demo.domain.MovieVersionBean;
 import com.example.demo.domain.StoreBean;
 import com.example.demo.domain.StoreReleaseMovieBean;
 import com.example.demo.domain.VersionBean;
+import com.example.demo.dto.internal.StoreInternalDto;
 import com.example.demo.repository.AuditoriumScheduleRepository;
 import com.example.demo.repository.StoreReleaseMovieRepository;
 import com.example.demo.repository.StoreRepository;
@@ -121,4 +120,5 @@ public class StoreReleaseMovieService {
 	public List<VersionBean> findStoreReleaseMovieVersions(Integer storeId) {
 		return storeReleaseMovieRepository.findStoreReleaseMovieVersions(storeId);
 	}
+	
 }

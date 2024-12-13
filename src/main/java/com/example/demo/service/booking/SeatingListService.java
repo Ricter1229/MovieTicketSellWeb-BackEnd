@@ -95,11 +95,12 @@ public class SeatingListService {
     /**
      * 新增座位進 seatingList
      * @param
+     * @return 
      * @return
      */
-    public void insertSeat(Integer auditoriumScheduleId) {    	    	
+    public List<SeatingListBean> insertSeat(Integer auditoriumId, Integer auditoriumScheduleId) {    	    	
     	// 假设 auditoriumId 已传入，seatingListRepository 和 SeatingListBean 已定义。
-    	Map<String, Object> seats = seatingService.findSeatingList(auditoriumScheduleId);
+    	Map<String, Object> seats = seatingService.findSeatingList(auditoriumId);
 
     	// 获取 "seats" 的值并强制转换为 List<Map<String, Object>>
     	List<Map<String, Object>> seatRows = (List<Map<String, Object>>) seats.get("seats");
@@ -142,9 +143,10 @@ public class SeatingListService {
     	}
 
     	if(seatList != null && seatList.size() != 0) {
-    		seatingListRepository.saveAll(seatList);
-            System.out.println("Seats saved: " + seatList.size());
+    		System.out.println("Seats saved: " + seatList.size());
+    		return seatingListRepository.saveAll(seatList);
     	}
+    	return null;
     }
     
     /**

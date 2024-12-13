@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.MemberBean;
 import com.example.demo.repository.MemberRepository;
+import com.example.demo.util.DatetimeConverter;
 
 @Service
 @Transactional
@@ -76,6 +77,32 @@ public class MemberService {
     public MemberBean findByAccount(String account) {
         Optional<MemberBean> memberOptional = memberRepository.findByAccount(account);
         return memberOptional.orElse(null);
+    }
+
+    public MemberBean modify(String json) {
+        try {
+            JSONObject obj = new JSONObject(json);
+            Integer id = obj.getInt("id");
+            String account = obj.isNull("account") ? null : obj.getString("account");
+            String phone = obj.isNull("phone") ? null : obj.getString("phone");
+            String birthDate = obj.isNull("birthDate") ? null : obj.getString("birthDate");
+
+            if (account != null && memberRepository.existsByAccount(account)) {
+                return null;
+            }
+
+            Optional<MemberBean> optional = memberRepository.findById(id);
+            MemberBean update = optional.get();
+            update.setAccount(account);
+            update.setPhoneNo(phone);
+            update.setBirthDate(DatetimeConverter.parse(birthDate, "yyyy-MM-dd"));
+
+            return memberRepository.save(update);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
     
     public void updatePassword(String email, String newPassword) {

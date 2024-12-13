@@ -13,22 +13,23 @@ public class JsonWebTokenInterceptor implements HandlerInterceptor {
     private JsonWebTokenUtility jsonWebTokenUtility;
 
     @Override
-    public boolean preHandle(HttpServletRequest request,
-                        HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@SuppressWarnings("null") HttpServletRequest request,
+            @SuppressWarnings("null") HttpServletResponse response, @SuppressWarnings("null") Object handler)
+            throws Exception {
         String method = request.getMethod();
-        if("OPTIONS".equals(method)) {
+        if ("OPTIONS".equals(method)) {
             return true;
         }
         String auth = request.getHeader("Authorization");
-        if(auth!=null && auth.startsWith("Bearer ")) {
+        if (auth != null && auth.startsWith("Bearer ")) {
             auth = auth.substring(7);
             String subject = jsonWebTokenUtility.validateToken(auth);
-            if(subject!=null && subject.length()!=0) {
-                //驗證TOken成功：true
+            if (subject != null && subject.length() != 0) {
+                // 驗證TOken成功：true
                 return true;
             }
         }
-        //驗證TOken失敗：false
+        // 驗證TOken失敗：false
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Origin", "*");

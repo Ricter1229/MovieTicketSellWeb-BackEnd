@@ -27,7 +27,7 @@ public class AuditoriumController {
 
 	@PostMapping("/insertSeatingList")
 	public ApiResponse<Object> createSeatingList(@RequestBody InsertSeatingListRequestDto request) {
-		return ApiResponse.success(seatingService.insertSeatingList(1, request));
+		return ApiResponse.success(seatingService.insertSeatingList(request));
 	}
 
 	@PostMapping("/getSeatingList")

@@ -6,8 +6,9 @@ import lombok.Data;
 
 @Data
 public class InsertSeatingListRequestDto {
-	public List<Integer> range;
-	public List<Integer> walkwayPositionsX;
-	public List<Integer> walkwayPositionsY;
-	public List<String> nullSeats;
+	private Integer auditoriumId;
+	private List<Integer> range;
+	private List<Integer> walkwayPositionsX;
+	private List<Integer> walkwayPositionsY;
+	private List<String> nullSeats;
 }

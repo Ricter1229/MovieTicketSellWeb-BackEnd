@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.api.common.ApiResponse;
 import com.example.demo.domain.MovieBean;
 import com.example.demo.dto.FindMovieResponseDTO;
 import com.example.demo.dto.FindMovieResponseRecord;
 import com.example.demo.dto.MovieResponse;
+import com.example.demo.dto.internal.StoreInternalDto;
 import com.example.demo.service.MovieService;
+import com.example.demo.service.StoreService;
 
 @RestController
 @CrossOrigin
@@ -28,7 +31,9 @@ public class MovieController {
 
 	@Autowired
 	private MovieService movieService;
-
+	@Autowired
+	private StoreService storeService;
+	
 	@PostMapping("/find")
 	public FindMovieResponseRecord find(@RequestBody String entity) {
 		long count = movieService.count(entity);
@@ -117,4 +122,9 @@ public class MovieController {
 		}
 	}
 
+	@GetMapping("/{movieId}/stores")
+    public ApiResponse<List<StoreInternalDto>> getStores(@PathVariable Integer movieId) {
+        List<StoreInternalDto> stores = storeService.getStoresByMovieIdAndDateRange(movieId);
+        return ApiResponse.success(stores);
+    }
 }

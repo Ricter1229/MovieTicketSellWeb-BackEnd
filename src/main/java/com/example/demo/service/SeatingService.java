@@ -25,8 +25,8 @@ public class SeatingService {
 	@Autowired
 	private AuditoriumRepository auditoriumRepository;
 	
-	public Map<String, List<Map<String, Object>>> insertSeatingList(Integer auditoriumId ,InsertSeatingListRequestDto request) {
-		AuditoriumBean auditorium = auditoriumRepository.findById(auditoriumId)
+	public Map<String, List<Map<String, Object>>> insertSeatingList(InsertSeatingListRequestDto request) {
+		AuditoriumBean auditorium = auditoriumRepository.findById(request.getAuditoriumId())
 				.orElseThrow(() -> new CustomException("Auditorium not found", 404));
 		
         Map<String, List<Map<String, Object>>> seatingLayout = InsertSeating.generateSeatingLayout("seats", request);

@@ -112,5 +112,32 @@ public class LoginAjaxController {
                 .put("message", "密碼重設成功")
                 .toString();
     }
+    
+    @PostMapping("/new-password")
+    public String newPassword(@RequestBody String entity) {
+        JSONObject obj = new JSONObject(entity);
+        String account = obj.optString("account");
+        String email = obj.optString("email");
+        String originalPwd = obj.optString("originalPwd");
+        String newPassword = obj.optString("newPwd");
 
+        MemberBean member = memberService.findByAccount(account);
+        System.out.println("成員: " + member);
+        if (member == null || !member.getPassword().equals(originalPwd)) {
+            System.out.println("Incorrect password");
+
+            return new JSONObject()
+                .put("success", false)
+                .put("message", "incorrect password")
+                .toString();
+        }
+
+        // Update the password in the database
+        memberService.updatePassword(email, newPassword);
+        System.out.println("Password updated successfully");
+        return new JSONObject()
+                .put("success", true)
+                .put("message", "密碼更新成功")
+                .toString();
+    }
 }
