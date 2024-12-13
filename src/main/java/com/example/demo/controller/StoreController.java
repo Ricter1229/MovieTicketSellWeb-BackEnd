@@ -22,6 +22,7 @@ import com.example.demo.domain.StoreSubPhotoBean;
 import com.example.demo.dto.RegionResponse;
 import com.example.demo.dto.StoreInnerResponse;
 import com.example.demo.dto.StoreOuterResponse;
+import com.example.demo.dto.StoreRequestFDto;
 import com.example.demo.dto.StoreResponse;
 import com.example.demo.dto.api.RegionDto;
 import com.example.demo.dto.api.StoreFindDto;
@@ -238,9 +239,9 @@ public class StoreController {
 		}
 	}
 	
-	@GetMapping("/{storeId}/schedules")
-    public ApiResponse<List<ScheduleInternalDto>> getSchedules(@PathVariable Integer storeId) {
-        List<ScheduleInternalDto> schedules = auditoriumScheduleService.getSchedulesByStoreIdAndDateRange(storeId);
+	@PostMapping("/schedules")
+    public ApiResponse<List<ScheduleInternalDto>> getSchedules(@RequestBody StoreRequestFDto request) {
+        List<ScheduleInternalDto> schedules = auditoriumScheduleService.getSchedulesByStoreIdAndDateRange(request.getStoreId(), request.getMovieId());
         return ApiResponse.success(schedules);
     }
 }

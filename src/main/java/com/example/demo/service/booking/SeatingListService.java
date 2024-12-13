@@ -40,26 +40,31 @@ public class SeatingListService {
      */
     public boolean lockSeat(Integer scheduleId, String seat) {
         String lockKey = "seat:" + scheduleId + ":" + seat;
-
         try { // 避免 redis 無法連線
 			// 取得分布式鎖
 			boolean isLocked = redisLockService.tryLock(lockKey, 30); // 鎖定 30 秒
 			if (!isLocked) {
 			    throw new CustomException("Seat is already locked", 400);
 			}
+
 		} catch (Exception e) {
 			System.err.println("Redis connection failed: " + e.getMessage());
 			throw new CustomException("Redis connection failed: " + e.getMessage(), 400);
 		}
-        
+        System.out.println("2");
+        System.out.println(scheduleId + " " + seat);
+
         // 更新資料庫中的座位狀態
         SeatingListBean seatList = seatingListRepository.findSeatForUpdate(scheduleId, seat)
                 .orElseThrow(() -> new CustomException("Seat not found", 404));
+        System.out.println("3");
+
         if (seatList.getIsLocked() == 1 || seatList.getIsSold()  == 1) {
             redisLockService.releaseLock(lockKey); // 釋放 Redis 鎖
             throw new CustomException("Seat is not available", 400);
         }
-        
+        System.out.println("1");
+
     	seatList.setIsLocked(1);
         seatList.setSeatLockCreateTime(LocalDateTime.now());
         seatingListRepository.save(seatList);

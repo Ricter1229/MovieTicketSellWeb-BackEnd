@@ -101,7 +101,6 @@ public class MemberBuyTicketOrderService {
 			}
             throw new CustomException("Failed to lock seat. ", 400);
 		}
-        
         // 創建訂單主表
         MemberBuyTicketOrderBean newOrder = new MemberBuyTicketOrderBean();
         newOrder.setMember(member);
@@ -117,7 +116,7 @@ public class MemberBuyTicketOrderService {
         List<MemberBuyTicketDetailBean> orderDetailList = memberBuyTicketDetailService.insertOrderDetail(orderDetail);
         newOrder.setMemberBuyTicketDetailBeans(orderDetailList);
         
-        
+
         // 更新座位狀態為已售出
 //    	boolean purchaseSuccess = false;
 //    	for(String seat : orderDetail.getSeats()) {
@@ -160,12 +159,10 @@ public class MemberBuyTicketOrderService {
         if (!isValidStatusTransition(order.getState(), newState)) {
             throw new CustomException("Invalid status transition", 400);
         }
-        System.out.println("3");
 
         // 更新狀態
         order.setState(newState);
         memberBuyTicketOrderRepository.save(order);
-        System.out.println("4");
         if(newState.equals("PAID")) {
         	try {
     			for(MemberBuyTicketDetailBean orderDetail : order.getMemberBuyTicketDetailBeans()) {
@@ -175,7 +172,6 @@ public class MemberBuyTicketOrderService {
                 throw new CustomException("Failed to set purchase seat. ", 400);
     		}
         }
-        System.out.println("5");
         redisTemplate.opsForHash().put("order-details", "order-expire:" + orderId, "PAID");        
         
         return orderId;

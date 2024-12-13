@@ -104,7 +104,7 @@ public class AuditoriumScheduleService {
 		return null;
 	}
 	
-	public List<ScheduleInternalDto> getSchedulesByStoreIdAndDateRange(Integer storeId) {
+	public List<ScheduleInternalDto> getSchedulesByStoreIdAndDateRange(Integer storeId, Integer movieId) {
         if (storeId == null) {
             throw new IllegalArgumentException("Store ID cannot be null");
         }
@@ -125,6 +125,6 @@ public class AuditoriumScheduleService {
         calendar.add(Calendar.DAY_OF_MONTH, 7);
         Date endOfNextWeek = calendar.getTime();
 
-        return auditoriumScheduleRepository.findSchedulesByStoreIdAndDateRange(storeId, startOfToday, endOfNextWeek);
+        return auditoriumScheduleRepository.findSchedulesByStoreIdAndDateRange(storeId, movieId, startOfToday, endOfNextWeek);
     }
 }

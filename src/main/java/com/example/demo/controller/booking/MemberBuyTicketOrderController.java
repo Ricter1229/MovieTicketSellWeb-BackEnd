@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,11 +27,7 @@ import com.example.demo.domain.AuditoriumScheduleBean;
 import com.example.demo.domain.MemberBuyTicketOrderBean;
 import com.example.demo.dto.api.MemberBuyTicketOrderRequestDto;
 import com.example.demo.dto.api.RefundRequestDto;
-import com.example.demo.dto.api.SearchRequestDto;
 import com.example.demo.service.booking.MemberBuyTicketOrderService;
-
-import ecpay.payment.integration.domain.AioCheckOutApplePay;
-import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin
@@ -53,12 +48,9 @@ public class MemberBuyTicketOrderController {
 		);
 		//原本updateOrderStatus
 //		orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
-		orderService.updateOrderStatus(order.getId(), "PAID");
-		String ecPayWeb = orderService.ecPayService(request,order.getId());
 		
 		Map<String, Object> returnData = new LinkedHashMap<>();
 		returnData.put("orderId",order.getId());
-		returnData.put("netSection", ecPayWeb);
 		return ApiResponse.success(returnData);
 	}
 	
@@ -68,11 +60,20 @@ public class MemberBuyTicketOrderController {
 	 * PENDING PAID CANCELED REFUNDED
 	 * @return
 	 */
-//	@PutMapping("/status")
-//	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
-//		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
-//		return ApiResponse.success(orderId);
-//	}	
+	@PutMapping("/status")
+	public ApiResponse<Object> updateOrderStatus(@RequestBody MemberBuyTicketOrderRequestDto request) {
+		Integer orderId = orderService.updateOrderStatus(request.getOrderId(), request.getStatus());
+		return ApiResponse.success(orderId);
+	}
+	
+	@PostMapping("/netSection") 
+	public ApiResponse<Object> netSection(@RequestBody MemberBuyTicketOrderRequestDto request) {
+		String ecPayWeb = orderService.ecPayService(request,request.getOrderId());
+		
+		Map<String, Object> returnData = new LinkedHashMap<>();
+		returnData.put("netSection", ecPayWeb);
+		return ApiResponse.success(returnData);
+	}
 	/**
 	 * 更改訂單狀態
 	 * @param id
@@ -163,20 +164,23 @@ public class MemberBuyTicketOrderController {
 		List<MemberBuyTicketOrderBean> orders = orderService.findByMemberId(request.getMemberId());
 		
 		List<Map<String, Object>> result = new ArrayList<>();
-
+		
  		for(MemberBuyTicketOrderBean order : orders) {
- 			AuditoriumScheduleBean auditoriumSchedule = order.getMemberBuyTicketDetailBeans().get(0).getAuditoriumScheduleBean();
- 			if(findDateIsPastOrFuture(auditoriumSchedule).equals(request.getAction())) {
- 				Map<String, Object> orderInfo = new LinkedHashMap<>();
- 				orderInfo.put("orderId", order.getId());
- 				orderInfo.put("orderDetailCount", order.getMemberBuyTicketDetailBeans().size());
- 			    orderInfo.put("movieName", order.getMovieBean().getChineseName());
- 			    orderInfo.put("schedule", assembleScheduleDateTimeSlots(auditoriumSchedule));
- 				
- 			    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
- 		        String formattedDate = order.getTimeBuying().format(formatter); // 格式化日期
- 			    orderInfo.put("orderCreateTime", formattedDate);
- 			    result.add(orderInfo);
+ 			System.out.println("8974584 " + order.getId() + " " + orders.size());
+ 			if (!order.getMemberBuyTicketDetailBeans().isEmpty()) {
+ 				AuditoriumScheduleBean auditoriumSchedule = order.getMemberBuyTicketDetailBeans().get(0).getAuditoriumScheduleBean();
+ 	 			if(findDateIsPastOrFuture(auditoriumSchedule).equals(request.getAction())) {
+ 	 				Map<String, Object> orderInfo = new LinkedHashMap<>();
+ 	 				orderInfo.put("orderId", order.getId());
+ 	 				orderInfo.put("orderDetailCount", order.getMemberBuyTicketDetailBeans().size());
+ 	 			    orderInfo.put("movieName", order.getMovieBean().getChineseName());
+ 	 			    orderInfo.put("schedule", assembleScheduleDateTimeSlots(auditoriumSchedule));
+ 	 				
+ 	 			    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+ 	 		        String formattedDate = order.getTimeBuying().format(formatter); // 格式化日期
+ 	 			    orderInfo.put("orderCreateTime", formattedDate);
+ 	 			    result.add(orderInfo);
+ 	 			}
  			}
 		}
  		
