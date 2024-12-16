@@ -21,12 +21,13 @@ public interface StoreRepository extends JpaRepository<StoreBean, Integer>,Store
 	public List<StoreBean> findStoreByName(@Param(value="name")String name);
 	
 	@Query("SELECT DISTINCT new com.example.demo.dto.internal.StoreInternalDto(s.id, s.name) " +
-		       "FROM StoreReleaseMovieBean srm " +
-		       "JOIN MovieVersionBean mv ON srm.movieVersionId = mv.id " +
-		       "JOIN StoreBean s ON srm.storeId = s.id " +
-		       "JOIN AuditoriumScheduleBean a ON a.storeReleaseMovieId = srm.id " +
+		       "FROM StoreBean s " +
+		       "JOIN AuditoriumBean a on a.storeId = s.id " +
+		       "JOIN AuditoriumScheduleBean aa on aa.auditoriumId = a.id " +
+		       "JOIN StoreReleaseMovieBean srm on srm.id = aa.storeReleaseMovieId " +
+		       "JOIN MovieVersionBean mv on mv.id = srm.movieVersionId " +
 		       "WHERE mv.movieId = :movieId " +
-		       "AND a.date BETWEEN :startDate AND :endDate")
+		       "AND aa.date BETWEEN :startDate AND :endDate")
 	List<StoreInternalDto> findDistinctStoresByMovieIdAndDateRange(
 	    @Param("movieId") Integer movieId,
 	    @Param("startDate") Date startDate,

@@ -39,7 +39,6 @@ public class MemberBuyTicketOrderController {
 	
 	@PostMapping("/")
 	public ApiResponse<Object> createOrder(@RequestBody MemberBuyTicketOrderRequestDto request) {
-
 		MemberBuyTicketOrderBean order = orderService.insert(
 				request.getMemberId(), 
 				request.getMovieId(), 
@@ -166,7 +165,6 @@ public class MemberBuyTicketOrderController {
 		List<Map<String, Object>> result = new ArrayList<>();
 		
  		for(MemberBuyTicketOrderBean order : orders) {
- 			System.out.println("8974584 " + order.getId() + " " + orders.size());
  			if (!order.getMemberBuyTicketDetailBeans().isEmpty()) {
  				AuditoriumScheduleBean auditoriumSchedule = order.getMemberBuyTicketDetailBeans().get(0).getAuditoriumScheduleBean();
  	 			if(findDateIsPastOrFuture(auditoriumSchedule).equals(request.getAction())) {

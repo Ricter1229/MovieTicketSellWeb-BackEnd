@@ -25,17 +25,17 @@ public interface AuditoriumScheduleRepository extends JpaRepository<AuditoriumSc
 			@Param("date") Date date, @Param("timeSlots") String timeSlots);
 
 	@Query( "SELECT DISTINCT new com.example.demo.dto.internal.ScheduleInternalDto(" 
-			+ "srm.id as storeReleaseMovieId,a.auditoriumId, aa.name as auditoriumName,v.id as versionId,v.version, a.id, a.date, a.timeSlots" 
+			+ "srm.id as storeReleaseMovieId, aa.auditoriumId, a.name as auditoriumName, v.id as versionId, v.version, a.id, aa.date, aa.timeSlots" 
 			+ ") " 
-			+ "FROM AuditoriumScheduleBean a "
-			+ "JOIN AuditoriumBean aa ON a.auditoriumId=aa.id "
-			+ "JOIN StoreReleaseMovieBean srm ON a.storeReleaseMovieId=srm.id " 
-			+ "JOIN MovieVersionBean mv ON srm.movieVersionId = mv.id " 
-			+ "JOIN VersionBean v ON mv.versionId=v.id " 
-			+ "WHERE srm.storeId=:storeId AND mv.movieId = :movieId " 
-			+ "AND a.date BETWEEN :startDate AND :endDate " 
-			+ "ORDER BY a.date, a.timeSlots")
+			+ "FROM StoreBean s "
+			+ "JOIN AuditoriumBean a on a.storeId = s.id "
+			+ "JOIN AuditoriumScheduleBean aa on aa.auditoriumId = a.id " 
+			+ "JOIN StoreReleaseMovieBean srm on srm.id = aa.storeReleaseMovieId " 
+			+ "JOIN MovieVersionBean mv on mv.id = srm.movieVersionId " 
+			+ "JOIN VersionBean v ON mv.versionId = v.id " 
+			+ "WHERE s.id=:storeId AND mv.movieId = :movieId " 
+			+ "AND aa.date BETWEEN :startDate AND :endDate " 
+			+ "ORDER BY aa.date, aa.timeSlots")
 	List<ScheduleInternalDto> findSchedulesByStoreIdAndDateRange(@Param("storeId") Integer storeId, @Param("movieId") Integer movieId,
 			@Param("startDate") Date startDate, @Param("endDate") Date endDate);
-
 }

@@ -2,10 +2,12 @@ package com.example.demo.service.booking;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.SeatingListBean;
@@ -31,6 +33,8 @@ public class SeatingListService {
 	private SeatingService seatingService;
 	@Autowired
 	private AuditoriumScheduleRepository auditoriumScheduleRepository;
+//	@Autowired
+//	private SimpMessagingTemplate messagingTemplate;
 
 	/**
      * 鎖定座位
@@ -51,23 +55,23 @@ public class SeatingListService {
 			System.err.println("Redis connection failed: " + e.getMessage());
 			throw new CustomException("Redis connection failed: " + e.getMessage(), 400);
 		}
-        System.out.println("2");
-        System.out.println(scheduleId + " " + seat);
 
         // 更新資料庫中的座位狀態
         SeatingListBean seatList = seatingListRepository.findSeatForUpdate(scheduleId, seat)
                 .orElseThrow(() -> new CustomException("Seat not found", 404));
-        System.out.println("3");
 
         if (seatList.getIsLocked() == 1 || seatList.getIsSold()  == 1) {
             redisLockService.releaseLock(lockKey); // 釋放 Redis 鎖
             throw new CustomException("Seat is not available", 400);
         }
-        System.out.println("1");
 
     	seatList.setIsLocked(1);
         seatList.setSeatLockCreateTime(LocalDateTime.now());
         seatingListRepository.save(seatList);
+        
+		// 广播座位锁定状态
+//		broadcastSeatStatus(scheduleId, seat, "locked");
+
         return true;
     }
     
@@ -92,11 +96,22 @@ public class SeatingListService {
             
             // Step 2: 釋放 Redis 鎖
             redisLockService.releaseLock(redisLockKey);
+            
+//			broadcastSeatStatus(scheduleId, seat, "available");
             return true;
         }
         return false;
     }
-    
+
+ // 广播座位状态
+// 	private void broadcastSeatStatus(Integer scheduleId, String seat, String status) {
+// 		Map<String, Object> seatStatus = new HashMap<>();
+// 		seatStatus.put("scheduleId", scheduleId);
+// 		seatStatus.put("seat", seat);
+// 		seatStatus.put("status", status);
+//
+// 		messagingTemplate.convertAndSend("/topic/seats", seatStatus);
+// 	}
     /**
      * 新增座位進 seatingList
      * @param
