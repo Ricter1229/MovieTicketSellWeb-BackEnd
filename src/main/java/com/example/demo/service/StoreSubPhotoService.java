@@ -52,7 +52,6 @@ public class StoreSubPhotoService {
 		if(storeId!=null){
 			if(storeOpt.isPresent()) {
 				store = storeOpt.get();
-				System.out.println("photo是"+store.getStoreSubPhoto());
 				//從store拿到的
 				storeSubPhotoOld=store.getStoreSubPhoto();
 			}
@@ -78,8 +77,7 @@ public class StoreSubPhotoService {
 		if(storeId!=null) {
 			if(storeOpt.isPresent()) {
 				store = storeOpt.get();
-				System.out.println("photo是"+store.getStoreSubPhoto());
-				//從store拿到的
+
 				
 			}
 			//每個storeSubPhoto拆開執行
