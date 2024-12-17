@@ -21,6 +21,7 @@ public class AuditoriumScheduleController {
 	
 	@PostMapping("/save-store")
 	public ApiResponse<Object> saveStoreSchedule(@RequestBody AuditoriumScheduleRequestDto request) {
+
 		return ApiResponse.success(auditoriumScheduleService.insert(request.getStoreId(), request.getMovies()));
 	}
 	@PostMapping("/get-auditorium-date")

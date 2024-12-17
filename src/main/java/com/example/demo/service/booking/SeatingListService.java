@@ -106,10 +106,8 @@ public class SeatingListService {
     public List<SeatingListBean> insertSeat(Integer auditoriumId, Integer auditoriumScheduleId) {    	    	
     	// 假设 auditoriumId 已传入，seatingListRepository 和 SeatingListBean 已定义。
     	Map<String, Object> seats = seatingService.findSeatingList(auditoriumId);
-
     	// 获取 "seats" 的值并强制转换为 List<Map<String, Object>>
     	List<Map<String, Object>> seatRows = (List<Map<String, Object>>) seats.get("seats");
-    	
         List<SeatingListBean> seatList = new ArrayList<>();
     	// 遍历每一行的座位数据
     	for (Map<String, Object> row : seatRows) {
@@ -146,7 +144,7 @@ public class SeatingListService {
     	        seatList.add(seatingListBean);
     	    }
     	}
-
+    	System.out.println("ccc");
     	if(seatList != null && seatList.size() != 0) {
     		System.out.println("Seats saved: " + seatList.size());
     		return seatingListRepository.saveAll(seatList);
