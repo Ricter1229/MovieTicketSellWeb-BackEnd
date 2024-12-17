@@ -31,8 +31,7 @@ public class AuditoriumService {
 	
 	public List<com.example.demo.dto.api.AuditoriumsDto.AuditoriumDto> updateAuditorium(Integer storeId,JSONObject json) {
 		List<com.example.demo.dto.api.AuditoriumsDto.AuditoriumDto> auditoriumList = JsonToSomething.jsonToAuditorium(json).getAuditoriumList();
-		System.out.println("auditoriumList");
-		System.out.println(auditoriumList);
+
 //		try {
 //			JSONArray array=json.isNull("auditoriums")?null:json.getJSONArray("auditoriums");
 ////			System.out.println("111");
@@ -51,13 +50,9 @@ public class AuditoriumService {
 //		System.out.println(auditoriumList);
 		if(storeId!=null) {
 			Optional<StoreBean> storeOpt = sr.findById(storeId);
-			System.out.println("updateStoreSubPhoto的storeId"+storeId);
 			if(storeOpt.isPresent()) {
 				StoreBean store = storeOpt.get();
 				
-				System.out.println("aaa");
-				System.out.println("auditoriumList.size()");
-				System.out.println(auditoriumList.size());
 				for (AuditoriumsDto.AuditoriumDto auditoriumDto : auditoriumList) {
 					if(auditoriumDto.getAuditoriumId().length()!=0) {
 						System.out.println("123");
@@ -68,7 +63,7 @@ public class AuditoriumService {
 							auditoriumBean.setName(auditoriumDto.getAuditoriumName());
 							ar.save(auditoriumBean);
 						}else {
-							System.out.println("大大大1");
+
 							AuditoriumBean auditoriumBean = new AuditoriumBean();
 							auditoriumBean.setName(auditoriumDto.getAuditoriumName());
 							auditoriumBean.setStore(store);
@@ -76,7 +71,7 @@ public class AuditoriumService {
 						}
 						
 					}else {
-						System.out.println("大大大");
+
 						AuditoriumBean auditoriumBean = new AuditoriumBean();
 						auditoriumBean.setName(auditoriumDto.getAuditoriumName());
 						auditoriumBean.setStore(store);
@@ -171,5 +166,33 @@ public class AuditoriumService {
 			return ar.saveAll(auditoriumBeans);
 		}
 		return null;
+	}
+	
+	public void deleteAuditoriumByIds(String jsons) {
+		System.out.println("刪除1");
+		System.out.println(jsons);
+		System.out.println(jsons!=null);
+		System.out.println(jsons.length()!=0);
+		System.out.println(jsons!=null&&jsons.length()!=0);
+		if(jsons!=null&&jsons.length()!=0) {
+			try {
+				JSONArray jsonArray = new JSONArray(jsons);
+				System.out.println("jsonArray");
+				System.out.println(jsonArray.toString());
+				for(int i=0;i<jsonArray.length();i++) {
+					int id=jsonArray.getInt(i);
+					if(ar.existsById(id)) {
+						ar.deleteById(id);
+						
+					}
+				}
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
 	}
 }

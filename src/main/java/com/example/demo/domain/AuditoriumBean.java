@@ -50,6 +50,7 @@ public class AuditoriumBean {
 	private String seatingList;
 	
 	@JsonManagedReference("auditoriumBean")
-	@OneToMany(mappedBy = "auditoriumBean", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "auditoriumBean")
+//	@OneToMany(mappedBy = "auditoriumBean", cascade = CascadeType.ALL)
 	private List<AuditoriumScheduleBean> auditoriumScheduleBeans = new ArrayList<>();
 }

@@ -70,7 +70,13 @@ public class StoreController {
 //		
 //	}
 	// 拆分成store跟subphotos
-
+	
+	@PostMapping("/remove")
+	public ApiResponse<Object> audDeleteById(@RequestBody String jsonString) {
+		audService.deleteAuditoriumByIds(jsonString);
+		return ApiResponse.success(null);
+	}
+	
 	@PostMapping("/insert")
 	public StoreResponse storeInsert(@RequestBody String jsonString) {
 		JSONObject json = null;
