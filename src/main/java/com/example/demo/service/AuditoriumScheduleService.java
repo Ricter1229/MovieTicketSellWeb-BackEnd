@@ -44,7 +44,6 @@ public class AuditoriumScheduleService {
 						new SimpleDateFormat("yyyy-MM-dd").parse(insert.getDate()),
 						insert.getTimeSlots()
 				);
-				
 				if(oldSchedule.isEmpty()) {
 					System.out.println("1");
 					AuditoriumScheduleBean schedule = new AuditoriumScheduleBean();
@@ -55,8 +54,9 @@ public class AuditoriumScheduleService {
 					schedule.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(insert.getDate()));
 					schedule.setTimeSlots(insert.getTimeSlots());
 					schedule = auditoriumScheduleRepository.save(schedule);
-
+					System.out.println("234");
 					List<SeatingListBean> seatingList = seatingListService.insertSeat(insert.getAuditoriumId(), schedule.getId());
+
 					schedule.setSeatingListBeans(seatingList);
 
 				} else if(insert.getIsRemove() == true) {

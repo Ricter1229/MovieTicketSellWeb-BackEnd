@@ -33,15 +33,15 @@ public class AuditoriumBean {
 	@JsonBackReference("auditoriumBeans")
     @ManyToOne
 	@JoinColumn(
-			insertable = false, 
-			updatable = false,
+			insertable = true, 
+			updatable = true,
 			name = "storeId",
 			referencedColumnName = "id"
 	)
 	private StoreBean store;
 	
-	@Column(name="storeId")
-	private Integer storeId;
+//	@Column(name="storeId")
+//	private Integer storeId;
 	
 	@Column(name="name")
 	private String name;
@@ -50,6 +50,7 @@ public class AuditoriumBean {
 	private String seatingList;
 	
 	@JsonManagedReference("auditoriumBean")
-	@OneToMany(mappedBy = "auditoriumBean", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "auditoriumBean")
+//	@OneToMany(mappedBy = "auditoriumBean", cascade = CascadeType.ALL)
 	private List<AuditoriumScheduleBean> auditoriumScheduleBeans = new ArrayList<>();
 }

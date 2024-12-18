@@ -122,8 +122,6 @@ public class StoreService {
 			
 			PhotoTypeDto mainPhotoDto = PhotoTurn.base64ToByte(mainPhotoStr);
 			
-			
-			System.out.println("蝦蝦蝦");
 
 			if(mainPhotoDto!=null) {
 				System.out.println("mainPhotoStr的mimestr:"+mainPhotoDto.getMimeType());

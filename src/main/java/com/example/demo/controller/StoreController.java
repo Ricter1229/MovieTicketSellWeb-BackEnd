@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.api.common.ApiResponse;
+import com.example.demo.domain.AuditoriumBean;
 import com.example.demo.domain.StoreBean;
 import com.example.demo.domain.StoreSubPhotoBean;
 import com.example.demo.dto.RegionResponse;
@@ -24,6 +25,8 @@ import com.example.demo.dto.StoreInnerResponse;
 import com.example.demo.dto.StoreOuterResponse;
 import com.example.demo.dto.StoreRequestFDto;
 import com.example.demo.dto.StoreResponse;
+import com.example.demo.dto.api.AuditoriumsDto;
+import com.example.demo.dto.api.AuditoriumsDto.AuditoriumDto;
 import com.example.demo.dto.api.RegionDto;
 import com.example.demo.dto.api.StoreFindDto;
 import com.example.demo.dto.api.StoreInnerDto;
@@ -31,6 +34,7 @@ import com.example.demo.dto.api.StoreOuterDto;
 import com.example.demo.dto.internal.ScheduleInternalDto;
 import com.example.demo.repository.StoreSubPhotoRepository;
 import com.example.demo.service.AuditoriumScheduleService;
+import com.example.demo.service.AuditoriumService;
 import com.example.demo.service.StoreService;
 import com.example.demo.service.StoreSubPhotoService;
 import com.example.demo.util.JsonToSomething;
@@ -48,6 +52,8 @@ public class StoreController {
 	private StoreSubPhotoRepository storeSubRepo;
 	@Autowired
 	private AuditoriumScheduleService auditoriumScheduleService;
+	@Autowired
+	private AuditoriumService audService;
 //	傳一個string進來回傳原本的json
 //	@PostMapping("/insert")
 //	public String storeInsert(@RequestBody String jsonString) {
@@ -64,12 +70,18 @@ public class StoreController {
 //		
 //	}
 	// 拆分成store跟subphotos
-
+	
+	@PostMapping("/remove")
+	public ApiResponse<Object> audDeleteById(@RequestBody String jsonString) {
+		audService.deleteAuditoriumByIds(jsonString);
+		return ApiResponse.success(null);
+	}
+	
 	@PostMapping("/insert")
 	public StoreResponse storeInsert(@RequestBody String jsonString) {
 		JSONObject json = null;
 
-		System.out.println("aaa");
+//		System.out.println("aaa");
 		// 將string的sotre部分轉成json再轉成storebean
 		try {
 			json = new JSONObject(jsonString);
@@ -77,24 +89,35 @@ public class StoreController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("bbb");
+//		System.out.println("bbb");
 		StoreBean store = JsonToSomething.jsonToStore(json);
-		System.out.println("ccc");
+//		System.out.println("ccc");
 //			stoService.updateStore(store);
 		if (stoService.insertStore(store) == null) {
 			return new StoreResponse(0, null, false, "新增失敗");
 		}
 
-		System.out.println("ddd");
+//		System.out.println("ddd");
 		// 將string的sotre部分轉成json再轉成List<storesubphotobean>
 		List<StoreSubPhotoBean> storeSubPhotos = JsonToSomething.jsonToSubPhotos(json);
 		Integer id = stoService.getStoreIdByName(store.getName());
 		List<Integer> subIds = storeSubRepo.findStoreSubIdByStoreId(id);
 		subPhotoService.deleteStoreSubPhoto(id, subIds);
-		System.out.println("end");
+//		System.out.println("end");
+		
 		if (subPhotoService.updateStoreSubPhoto(id, storeSubPhotos) == null) {
 			return new StoreResponse(0, null, false, "新增失敗");
 		}
+		
+		AuditoriumsDto auditoriumsDto=JsonToSomething.jsonToAuditorium(json);
+		
+		System.out.println("auditoriumsDto");
+		System.out.println(auditoriumsDto);
+		if(audService.insertAuditoriumByDto(id, auditoriumsDto)==null) {
+			return new StoreResponse(0, null, false, "新增失敗");
+		}
+		
+		
 
 		return new StoreResponse(0, null, true, "修改成功");
 
@@ -114,10 +137,13 @@ public class StoreController {
 				subPhotoService.deleteStoreSubPhoto(id, subIds);
 				System.out.println("end");
 				List<StoreSubPhotoBean> storeSubPhotos = JsonToSomething.jsonToSubPhotos(obj);
+				System.out.println("json");
 				subPhotoService.updateStoreSubPhoto(id, storeSubPhotos);
-				if (update != null) {
+				System.out.println("jsonend");
+				List<AuditoriumDto> updateAuditorium = audService.updateAuditorium(id, obj);
+
 					return new StoreResponse(0, null, true, "修改成功");
-				}
+				
 			}
 		} catch (JSONException e) {
 
@@ -218,8 +244,17 @@ public class StoreController {
 		}
 		List<StoreFindDto> dtos = new ArrayList<>();
 		for (StoreBean store : stores) {
+			List<StoreFindDto.AuditoriumDto> auditoriumList=new ArrayList<>();
 			StoreFindDto dto = stoService.setStoreToDto(store);
 			dtos.add(dto);
+			List<AuditoriumBean> auditoriumBeans = store.getAuditoriumBeans();
+			for (AuditoriumBean auditoriumBean : auditoriumBeans) {
+				StoreFindDto.AuditoriumDto auditoriumDto=new StoreFindDto.AuditoriumDto();
+				auditoriumDto.setAuditoriumId(auditoriumBean.getId().toString());
+				auditoriumDto.setAuditoriumName(auditoriumBean.getName());
+				auditoriumList.add(auditoriumDto);
+			}
+			dto.setAuditoriumList(auditoriumList);
 		}
 		return new StoreResponse(dtos.size(), dtos, true, "");
 	}

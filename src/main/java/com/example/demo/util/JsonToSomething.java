@@ -11,6 +11,8 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import com.example.demo.domain.AuditoriumBean;
 import com.example.demo.domain.StoreBean;
 import com.example.demo.domain.StoreSubPhotoBean;
+import com.example.demo.dto.api.AuditoriumsDto;
+import com.example.demo.dto.api.AuditoriumsDto.AuditoriumDto;
 import com.example.demo.dto.api.PhotoTypeDto;
 
 public class JsonToSomething {
@@ -92,22 +94,37 @@ public class JsonToSomething {
 		return subPhotoList;
 	}
 
-	public static AuditoriumBean jsonToAuditorium(JSONObject json) {
-
-		AuditoriumBean audi = new AuditoriumBean();
+	public static AuditoriumsDto jsonToAuditorium(JSONObject json) {
+		AuditoriumsDto auditoriumsDto=new AuditoriumsDto();
+		List<AuditoriumDto> auditoriumDtos=new ArrayList<>();
 		try {
+			JSONArray auditoriumsDtoJSON = json.isNull("auditoriumList") ? null
+					: json.getJSONArray("auditoriumList");
+//			System.out.println("auditoriumsDtoJSON isnull");
+//			System.out.println(auditoriumsDtoJSON != null);
+			if (auditoriumsDtoJSON != null) {
+//				System.out.println(auditoriumsDtoJSON.length());
+				for (int i = 0; i < auditoriumsDtoJSON.length(); i++) {
+					AuditoriumDto auditoriumDto = new AuditoriumDto();
+					// 将 JSONArray 中的每个元素转换为 JSONObject
+					JSONObject audObj = auditoriumsDtoJSON.getJSONObject(i);
+					// 获取 photo 字段的值
 
-			Integer id = json.isNull("id") ? null : json.getInt("id");
-
-			String auditoriumName = json.isNull("auditoriumName") ? null : json.getString("auditoriumName");
-
-			audi.setId(id);
-			audi.setName(auditoriumName);
+					String auditoriumName = audObj.isNull("auditoriumName") ? null : audObj.getString("auditoriumName");
+					auditoriumDto.setAuditoriumName(auditoriumName);
+					
+					String auditoriumIdStr = audObj.isNull("auditoriumId") ? null : audObj.getString("auditoriumId");
+					
+					auditoriumDto.setAuditoriumId(auditoriumIdStr);
+					auditoriumDtos.add(auditoriumDto);
+				}
+				auditoriumsDto.setAuditoriumList(auditoriumDtos);
+			}
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return audi;
+		return auditoriumsDto;
 	}
 }

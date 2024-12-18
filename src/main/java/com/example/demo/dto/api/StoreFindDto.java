@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.domain.StoreSubPhotoBean;
+import com.example.demo.dto.api.AuditoriumsDto.AuditoriumDto;
 
 import jakarta.persistence.Column;
 import lombok.Data;
@@ -24,6 +25,11 @@ public class StoreFindDto {
 	private String position;
 	private	StoreSubPhotoDto[] storeSubPhotoDtos;
 
-//	private String auditoriumName;
+	private List<AuditoriumDto> auditoriumList;
 	
+	@Data
+	public static class AuditoriumDto {
+		private String auditoriumName;
+		private String auditoriumId;
+	}
 }
