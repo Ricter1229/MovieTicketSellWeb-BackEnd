@@ -33,7 +33,7 @@ public class MovieController {
 	private MovieService movieService;
 	@Autowired
 	private StoreService storeService;
-	
+
 	@PostMapping("/find")
 	public FindMovieResponseRecord find(@RequestBody String entity) {
 		long count = movieService.count(entity);
@@ -123,8 +123,19 @@ public class MovieController {
 	}
 
 	@GetMapping("/{movieId}/stores")
-    public ApiResponse<List<StoreInternalDto>> getStores(@PathVariable Integer movieId) {
-        List<StoreInternalDto> stores = storeService.getStoresByMovieIdAndDateRange(movieId);
-        return ApiResponse.success(stores);
-    }
+	public ApiResponse<List<StoreInternalDto>> getStores(@PathVariable Integer movieId) {
+		List<StoreInternalDto> stores = storeService.getStoresByMovieIdAndDateRange(movieId);
+		return ApiResponse.success(stores);
+	}
+
+	// 吳其容修改
+	@GetMapping("/moviesOnAir")
+	public List<MovieBean> findByDateRange() {
+		return movieService.findByDateRange();
+	}
+
+	@GetMapping("/moviesComingSoon")
+	public List<MovieBean> findByGreaterReleasedDate() {
+		return movieService.findByGreaterReleasedDate();
+	}
 }

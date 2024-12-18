@@ -95,6 +95,9 @@ public class MemberBuyTicketOrderBean {
 		}
 	}
 	
+	@Column(name = "qrcode")
+    private byte[] qrcode;
+	
 	@JsonManagedReference("memberBuyTicketOrderBean")
 	@OneToMany(mappedBy = "memberBuyTicketOrderBean")
 	private List<MemberBuyTicketDetailBean> memberBuyTicketDetailBeans = new ArrayList<>();

@@ -67,7 +67,7 @@ public class InsertSeating {
 	    		for(int j = 1; j <= y; j++) {
 	    			if(isWalkWayX || walkwayY.contains(j)) {
 	    				seats.add(null); // 走道
-	    			} else if (nullSeats.contains(String.valueOf(rowLabel) + "-" + j)) {
+	    			} else if (nullSeats.contains(i + "-" + j)) {
 	    				seats.add(null); // 空格
 	    			} else {
 	    				seats.add("" + seatNumber); // 座位標籤 (例如 A1, A2)

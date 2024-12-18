@@ -1,9 +1,11 @@
 package com.example.demo.service.booking;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.domain.AuditoriumScheduleBean;
 import com.example.demo.domain.MemberBean;
 import com.example.demo.domain.MemberBuyTicketDetailBean;
 import com.example.demo.domain.MemberBuyTicketOrderBean;
@@ -178,7 +180,7 @@ public class MemberBuyTicketOrderService {
 				.orElseThrow(() -> new CustomException("Order not found", 404));
 
 		// 驗證新狀態是否有效
-		if (!List.of("PENDING", "PAID", "CANCELED", "REFUNDED").contains(newState)) {
+		if (!List.of("PENDING", "PAID", "USED", "CANCELED", "REFUNDED").contains(newState)) {
 			throw new CustomException("Invalid order status: " + newState, 400);
 		}
 		// 驗證狀態流轉
@@ -198,9 +200,9 @@ public class MemberBuyTicketOrderService {
 			} catch (Exception e) {
 				throw new CustomException("Failed to set purchase seat. ", 400);
 			}
+			redisTemplate.opsForHash().put("order-details", "order-expire:" + orderId, "PAID");
 		}
-		redisTemplate.opsForHash().put("order-details", "order-expire:" + orderId, "PAID");
-
+		System.out.println("update orderId " + orderId + " to " + newState);
 		return orderId;
 	}
 
@@ -215,7 +217,8 @@ public class MemberBuyTicketOrderService {
 		case "PENDING":
 			return newStatus.equals("PAID") || newStatus.equals("CANCELED");
 		case "PAID":
-			return newStatus.equals("REFUNDED");
+			return newStatus.equals("REFUNDED") || newStatus.equals("USED");
+		case "USED":
 		case "CANCELED":
 		case "REFUNDED":
 			return false; // 已取消或退款的訂單不可變更
@@ -447,4 +450,27 @@ public class MemberBuyTicketOrderService {
 		return returnData;
 	}
 
+	public Map<String, Object> findOrderDetail(Integer orderId) {
+		MemberBuyTicketOrderBean order = memberBuyTicketOrderRepository.findById(orderId).get();
+		MovieBean movie = movieRepository.findById(order.getMovieId()).get();
+		List<MemberBuyTicketDetailBean> detail = memberBuyTicketOrderRepository.findByMemberBuyTicketOrderId(order.getId());
+		String seats = new String();
+		for(MemberBuyTicketDetailBean temp : detail) {
+			seats += temp.getSeat() + " ";
+		}
+		AuditoriumScheduleBean as = detail.get(0).getAuditoriumScheduleBean();
+		Map<String, Object> response = new HashMap<>();
+		response.put("movieName", movie.getChineseName());
+		response.put("orderDetailCount", detail.size());
+		response.put("seatInfo", seats);
+		response.put("totalPrice", order.getTotalAmount());
+		response.put("qrcode", order.getQrcode());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = formatter.format(as.getDate());
+        
+		response.put("schedule", formattedDate+ " " + as.getTimeSlots());
+		response.put("orderCreateTime", order.getTimeBuying());
+
+		return response;
+	}
 }

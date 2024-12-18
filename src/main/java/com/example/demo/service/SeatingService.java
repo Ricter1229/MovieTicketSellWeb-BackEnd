@@ -30,9 +30,11 @@ public class SeatingService {
 				.orElseThrow(() -> new CustomException("Auditorium not found", 404));
 		
         Map<String, List<Map<String, Object>>> seatingLayout = InsertSeating.generateSeatingLayout("seats", request);
-        
+        System.out.println(seatingLayout);
         String seatingList = JSONObject.wrap(seatingLayout).toString();
         auditorium.setSeatingList(seatingList);
+        System.out.println(seatingList);
+        System.out.println(request.getAuditoriumId());
         auditoriumRepository.save(auditorium);
         
         return seatingLayout;

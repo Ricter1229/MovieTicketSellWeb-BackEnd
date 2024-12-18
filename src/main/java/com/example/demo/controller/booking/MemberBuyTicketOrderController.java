@@ -181,7 +181,6 @@ public class MemberBuyTicketOrderController {
  	 			}
  			}
 		}
- 		
 		return ApiResponse.success(result);
 	}
 	
@@ -241,4 +240,40 @@ public class MemberBuyTicketOrderController {
 		return null;
 	}
 	
+	/**
+	 * 查詢某個會員的訂單 依據傳入的動作確定是使用或是未使用
+	 * @return
+	 */
+	@PostMapping("/member/used-or-not/tickets")
+	public ApiResponse<Object> getUsedOrNotOrderByMemberId(@RequestBody MemberBuyTicketOrderRequestDto request) {
+		List<MemberBuyTicketOrderBean> orders = orderService.findByMemberId(request.getMemberId());
+		
+		List<Map<String, Object>> result = new ArrayList<>();
+		
+ 		for(MemberBuyTicketOrderBean order : orders) {
+ 			if (!order.getMemberBuyTicketDetailBeans().isEmpty()) {
+ 				AuditoriumScheduleBean auditoriumSchedule = order.getMemberBuyTicketDetailBeans().get(0).getAuditoriumScheduleBean();
+ 	 			System.out.println(order.getState() + " "+ request.getAction() + " "+ order.getState().equals(request.getAction()));
+ 				if(order.getState().trim().equals(request.getAction().trim())) {
+ 	 				Map<String, Object> orderInfo = new LinkedHashMap<>();
+ 	 				orderInfo.put("orderId", order.getId());
+ 	 				orderInfo.put("orderDetailCount", order.getMemberBuyTicketDetailBeans().size());
+ 	 			    orderInfo.put("movieName", order.getMovieBean().getChineseName());
+ 	 			    orderInfo.put("schedule", assembleScheduleDateTimeSlots(auditoriumSchedule));
+ 	 				
+ 	 			    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+ 	 		        String formattedDate = order.getTimeBuying().format(formatter); // 格式化日期
+ 	 			    orderInfo.put("orderCreateTime", formattedDate);
+ 	 			    result.add(orderInfo);
+ 	 			}
+ 			}
+		}
+		return ApiResponse.success(result);
+	}
+	
+	@PostMapping("/order-detail")
+	public ApiResponse<Object> getOrderDetail(@RequestBody MemberBuyTicketOrderRequestDto request) {
+		
+		return ApiResponse.success(orderService.findOrderDetail(request.getOrderId()));
+	}
 }
