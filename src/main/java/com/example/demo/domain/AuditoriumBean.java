@@ -30,18 +30,19 @@ public class AuditoriumBean {
 	@Column(name="id")
 	private Integer id;
 	
+	@Column(name="storeId")
+	private Integer storeId;
+
 	@JsonBackReference("auditoriumBeans")
     @ManyToOne
 	@JoinColumn(
-			insertable = true, 
-			updatable = true,
+			insertable = false, 
+			updatable = false,
 			name = "storeId",
 			referencedColumnName = "id"
 	)
 	private StoreBean store;
 	
-//	@Column(name="storeId")
-//	private Integer storeId;
 	
 	@Column(name="name")
 	private String name;
